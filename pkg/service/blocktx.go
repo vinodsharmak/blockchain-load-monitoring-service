@@ -49,7 +49,7 @@ func CheckForMaxTxLoad() error {
 	logging.Infof("Total number of transaction between %v and %v is %v.", startBlock, endBlock, totalTransactions)
 
 	if totalTransactions >= maxTxLoad {
-		logging.Infof("Transaction load is higher than the %v, Please check the blockchain.", maxTxLoad)
+		logging.Infof("Transaction load is higher than the %v for %v blocks, Please check the blockchain.", maxTxLoad, blockDifferenceForMaxTxLoad)
 		// TODO: send email
 	}
 

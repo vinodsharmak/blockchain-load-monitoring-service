@@ -15,8 +15,13 @@ func main() {
 
 	logging := config.Logger
 
-	err = service.CheckForMaxTxLoad()
+	logging.Info("Blockchain monitoring start")
+	err = service.StartMonitoring()
 	if err != nil {
-		logging.Error("Error while checking for maximum load.")
+		logging.Errorf("Error while blockchain monitoring", err.Error())
+		logging.Info("Blockchain monitoring end")
+		return
 	}
+
+	logging.Info("Blockchain monitoring end")
 }
