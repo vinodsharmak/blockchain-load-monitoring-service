@@ -6,6 +6,8 @@ import (
 	"strconv"
 
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
+	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/constants"
+	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/email"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
@@ -51,6 +53,15 @@ func CheckForMaxTxLoad() error {
 	if totalTransactions >= maxTxLoad {
 		logging.Infof("Transaction load is higher than the %v for %v blocks, Please check the blockchain.", maxTxLoad, blockDifferenceForMaxTxLoad)
 		// TODO: send email
+		emaiMessage := "Alert, Blockchain has reached its maximum threshold ! \n\n" +
+			"Maximum threshold per " + config.BlockDifferenceForMaxTxLoad + " blocks is " +
+			config.MaxTxLoad + "\n" + "Number of transactions between " + strconv.FormatInt(startBlock, 10) +
+			" and " + strconv.FormatInt(endBlock, 10) + " was " + strconv.Itoa(totalTransactions)
+		err := email.SendEmail(constants.EmailSubject, emaiMessage)
+		if err != nil {
+			logging.Error("Error while sending Email")
+			return err
+		}
 	}
 
 	logging.Info("CheckForMaxTxLoad end")

@@ -14,6 +14,8 @@ var (
 	Logger                      *logger.Logger
 	MaxTxLoad                   string
 	BlockDifferenceForMaxTxLoad string
+	SenderEmail                 string
+	ReceiverEmails              string
 )
 
 // ReadConfig reads config file into the Config struct and returns it
@@ -57,6 +59,18 @@ func ReadConfig() error {
 	}
 	BlockDifferenceForMaxTxLoad = blockDifferenceForMaxTxLoad
 	Logger.Infof("BlockDifferenceForMaxTxLoad: %v", blockDifferenceForMaxTxLoad)
+
+	SenderEmail, exists = os.LookupEnv("SENDER_EMAIL")
+	if !exists || SenderEmail == "" {
+		Logger.Error("Sender email cannot be empty")
+	}
+	Logger.Info("Sender for Email Service ", SenderEmail)
+
+	ReceiverEmails, exists = os.LookupEnv("RECEIVER_EMAILS")
+	if !exists || ReceiverEmails == "" {
+		logger.Error("Receiver emails cannot be empty")
+	}
+	Logger.Info("Receivers for Email Service ", ReceiverEmails)
 
 	return nil
 }
