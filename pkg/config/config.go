@@ -14,6 +14,7 @@ var (
 	Logger                      *logger.Logger
 	MaxTxLoad                   string
 	BlockDifferenceForMaxTxLoad string
+	MaxTxPerBlock               string
 )
 
 // ReadConfig reads config file into the Config struct and returns it
@@ -57,6 +58,13 @@ func ReadConfig() error {
 	}
 	BlockDifferenceForMaxTxLoad = blockDifferenceForMaxTxLoad
 	Logger.Infof("BlockDifferenceForMaxTxLoad: %v", blockDifferenceForMaxTxLoad)
+
+	maxTxPerBlock, exists := os.LookupEnv("MAX_TX_PER_BLOCK")
+	if !exists || maxTxPerBlock == "" {
+		return fmt.Errorf("%s", "MAX_TX_PER_BLOCK cannot be empty")
+	}
+	MaxTxPerBlock = maxTxPerBlock
+	Logger.Infof("MaxTxPerBlock: %v", maxTxPerBlock)
 
 	return nil
 }

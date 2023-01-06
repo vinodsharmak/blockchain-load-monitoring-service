@@ -16,6 +16,7 @@ func CheckForMaxTxLoad() error {
 
 	maxTxLoad, _ := strconv.Atoi(config.MaxTxLoad)
 	blockDifferenceForMaxTxLoad, _ := strconv.ParseInt(config.BlockDifferenceForMaxTxLoad, 10, 64)
+	maxTxPerBlock, _ := strconv.Atoi(config.MaxTxPerBlock)
 
 	cl, err := ethclient.Dial(config.BlockchainURL)
 	if err != nil {
@@ -29,7 +30,7 @@ func CheckForMaxTxLoad() error {
 		return err
 	}
 	endBlock := currentBlock.Number.Int64()
-	startBlock := endBlock - blockDifferenceForMaxTxLoad
+	startBlock := endBlock - blockDifferenceForMaxTxLoad + 1
 
 	logging.Infof("Calculating number of transactions between %v to %v ...", startBlock, endBlock)
 	totalTransactions := 0
@@ -43,6 +44,10 @@ func CheckForMaxTxLoad() error {
 		if err != nil {
 			logging.Errorf(" Error while getting transaction count : %v", err.Error())
 			return err
+		}
+		if int(transactionCount) >= maxTxPerBlock {
+			logging.Infof("Transaction in %v was %v,which is higher than the tx/block threshold of %v Please check the blockchain.", i, int(transactionCount), maxTxPerBlock)
+			// TODO: send email
 		}
 		totalTransactions = totalTransactions + int(transactionCount)
 	}
