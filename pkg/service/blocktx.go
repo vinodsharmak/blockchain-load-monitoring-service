@@ -27,7 +27,7 @@ func (s *Service) Configure() error {
 }
 
 // Check if we have reached the max tx load and trigger email alerts
-func (s *Service) checkForMaxTxLoad(currentBlock int, oldBlock int) error {
+func (s *Service) checkForMaxTxLoad(startBlock int, endBlock int) error {
 	s.log.Info("CheckForMaxTxLoad start")
 
 	maxTxLoad, err := strconv.Atoi(config.MaxTxLoad)
@@ -39,9 +39,9 @@ func (s *Service) checkForMaxTxLoad(currentBlock int, oldBlock int) error {
 		return err
 	}
 
-	s.log.Infof("Calculating number of transactions between %v to %v ...", oldBlock, currentBlock)
+	s.log.Infof("Calculating number of transactions between %v to %v ...", startBlock, endBlock)
 	totalTransactions := 0
-	for i := oldBlock; i <= currentBlock; i++ {
+	for i := startBlock; i <= endBlock; i++ {
 		block, err := s.ethClient.BlockByNumber(context.Background(), new(big.Int).SetInt64(int64(i)))
 		if err != nil {
 			return err
@@ -56,15 +56,15 @@ func (s *Service) checkForMaxTxLoad(currentBlock int, oldBlock int) error {
 		}
 		totalTransactions = totalTransactions + int(transactionCount)
 	}
-	s.log.Infof("Total number of transaction between %v and %v is %v.", oldBlock, currentBlock, totalTransactions)
+	s.log.Infof("Total number of transaction between %v and %v is %v.", startBlock, endBlock, totalTransactions)
 
 	if totalTransactions >= maxTxLoad {
 		s.log.Infof("Transaction load is higher than the %v for %v blocks, Please check the blockchain.", maxTxLoad, config.BlockDifferenceForMaxTxLoad)
 		// TODO: send email
 	}
 
+	s.lastCheckedBlock = endBlock
 	s.log.Info("CheckForMaxTxLoad end")
-	s.lastCheckedBlock = currentBlock
 	return nil
 }
 
@@ -89,9 +89,8 @@ func (s *Service) checkTxLoad() error {
 	}
 
 	if int(currentBlock) >= expectedBlock {
-		oldBlock := s.lastCheckedBlock
-		newBlock := oldBlock + blockDifferenceForMaxTxLoad - 1
-		err := s.checkForMaxTxLoad(newBlock, oldBlock)
+		endBlock := s.lastCheckedBlock + blockDifferenceForMaxTxLoad - 1
+		err := s.checkForMaxTxLoad(s.lastCheckedBlock, endBlock)
 		if err != nil {
 			return err
 		}
