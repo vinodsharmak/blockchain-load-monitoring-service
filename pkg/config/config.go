@@ -14,7 +14,6 @@ var (
 	MaxTxLoad                   string
 	BlockDifferenceForMaxTxLoad string
 	MaxTxPerBlock               string
-	LastCheckedBlock            int
 )
 
 // ReadConfig reads config file into the Config struct and returns it

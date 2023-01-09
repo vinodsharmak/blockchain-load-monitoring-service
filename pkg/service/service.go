@@ -1,7 +1,7 @@
 package service
 
-func StartMonitoring() error {
-	err := checkTxLoad()
+func (s *Service) StartTxCountMonitoring() error {
+	err := s.checkTxLoad()
 	if err != nil {
 		return err
 	}

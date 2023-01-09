@@ -18,8 +18,14 @@ func main() {
 	log := config.Logger
 
 	log.Info("Blockchain monitoring start")
+	s := service.Service{}
+	err = s.Configure()
+	if err != nil {
+		log.Errorf("error in configuring blocktx count service", err)
+	}
+
 	for {
-		err = service.StartMonitoring()
+		err = s.StartTxCountMonitoring()
 		if err != nil {
 			log.Errorf("Error while blockchain monitoring", err.Error())
 		}
