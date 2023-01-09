@@ -31,6 +31,4 @@ func main() {
 		}
 		time.Sleep(10000)
 	}
-
-	// log.Info("Blockchain monitoring end")
 }
