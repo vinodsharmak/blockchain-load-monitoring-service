@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/service"
 	"github.com/sirupsen/logrus"
@@ -13,15 +15,16 @@ func main() {
 		return
 	}
 
-	logging := config.Logger
+	log := config.Logger
 
-	logging.Info("Blockchain monitoring start")
-	err = service.StartMonitoring()
-	if err != nil {
-		logging.Errorf("Error while blockchain monitoring", err.Error())
-		logging.Info("Blockchain monitoring end")
-		return
+	log.Info("Blockchain monitoring start")
+	for {
+		err = service.StartMonitoring()
+		if err != nil {
+			log.Errorf("Error while blockchain monitoring", err.Error())
+		}
+		time.Sleep(10000)
 	}
 
-	logging.Info("Blockchain monitoring end")
+	// log.Info("Blockchain monitoring end")
 }

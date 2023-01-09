@@ -10,54 +10,82 @@ import (
 )
 
 // Check if we have reached the max tx load and trigger email alerts
-func CheckForMaxTxLoad() error {
-	logging := config.Logger
-	logging.Info("CheckForMaxTxLoad start")
+func checkForMaxTxLoad(currentBlock int, oldBlock int) error {
+	log := config.Logger
+	log.Info("CheckForMaxTxLoad start")
 
-	maxTxLoad, _ := strconv.Atoi(config.MaxTxLoad)
-	blockDifferenceForMaxTxLoad, _ := strconv.ParseInt(config.BlockDifferenceForMaxTxLoad, 10, 64)
-	maxTxPerBlock, _ := strconv.Atoi(config.MaxTxPerBlock)
-
-	cl, err := ethclient.Dial(config.BlockchainURL)
+	maxTxLoad, err := strconv.Atoi(config.MaxTxLoad)
 	if err != nil {
-		logging.Errorf(" Error while configuring eth client : %v", err.Error())
+		return err
+	}
+	maxTxPerBlock, err := strconv.Atoi(config.MaxTxPerBlock)
+	if err != nil {
 		return err
 	}
 
-	currentBlock, err := cl.HeaderByNumber(context.Background(), nil)
+	client, err := ethclient.Dial(config.BlockchainURL)
 	if err != nil {
-		logging.Errorf(" Error while getting latest block : %v", err.Error())
 		return err
 	}
-	endBlock := currentBlock.Number.Int64()
-	startBlock := endBlock - blockDifferenceForMaxTxLoad + 1
 
-	logging.Infof("Calculating number of transactions between %v to %v ...", startBlock, endBlock)
+	log.Infof("Calculating number of transactions between %v to %v ...", oldBlock, currentBlock)
 	totalTransactions := 0
-	for i := startBlock; i <= endBlock; i++ {
-		block, err := cl.BlockByNumber(context.Background(), new(big.Int).SetInt64(i))
+	for i := oldBlock; i <= currentBlock; i++ {
+		block, err := client.BlockByNumber(context.Background(), new(big.Int).SetInt64(int64(i)))
 		if err != nil {
-			logging.Errorf(" Error while getting block details : %v", err.Error())
 			return err
 		}
-		transactionCount, err := cl.TransactionCount(context.Background(), block.Hash())
+		transactionCount, err := client.TransactionCount(context.Background(), block.Hash())
 		if err != nil {
-			logging.Errorf(" Error while getting transaction count : %v", err.Error())
 			return err
 		}
 		if int(transactionCount) >= maxTxPerBlock {
-			logging.Infof("Transaction in %v was %v,which is higher than the tx/block threshold of %v Please check the blockchain.", i, int(transactionCount), maxTxPerBlock)
+			log.Infof("Transaction in %v was %v,which is higher than the tx/block threshold of %v Please check the blockchain.", i, int(transactionCount), maxTxPerBlock)
 			// TODO: send email
 		}
 		totalTransactions = totalTransactions + int(transactionCount)
 	}
-	logging.Infof("Total number of transaction between %v and %v is %v.", startBlock, endBlock, totalTransactions)
+	log.Infof("Total number of transaction between %v and %v is %v.", oldBlock, currentBlock, totalTransactions)
 
 	if totalTransactions >= maxTxLoad {
-		logging.Infof("Transaction load is higher than the %v for %v blocks, Please check the blockchain.", maxTxLoad, blockDifferenceForMaxTxLoad)
+		log.Infof("Transaction load is higher than the %v for %v blocks, Please check the blockchain.", maxTxLoad, config.BlockDifferenceForMaxTxLoad)
 		// TODO: send email
 	}
 
-	logging.Info("CheckForMaxTxLoad end")
+	log.Info("CheckForMaxTxLoad end")
+	config.LastCheckedBlock = currentBlock
+	return nil
+}
+
+func checkTxLoad() error {
+	blockDifferenceForMaxTxLoad, err := strconv.Atoi(config.BlockDifferenceForMaxTxLoad)
+	if err != nil {
+		return err
+	}
+
+	client, err := ethclient.Dial(config.BlockchainURL)
+	if err != nil {
+		return err
+	}
+	currentBlock, err := client.BlockNumber(context.Background())
+	if err != nil {
+		return err
+	}
+
+	expectedBlock := 0
+	if config.LastCheckedBlock == 0 {
+		expectedBlock = int(currentBlock) - blockDifferenceForMaxTxLoad
+	} else {
+		expectedBlock = config.LastCheckedBlock + blockDifferenceForMaxTxLoad
+	}
+
+	if int(currentBlock) >= expectedBlock {
+		oldBlock := int(currentBlock) - blockDifferenceForMaxTxLoad + 1
+		err := checkForMaxTxLoad(int(currentBlock), oldBlock)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
