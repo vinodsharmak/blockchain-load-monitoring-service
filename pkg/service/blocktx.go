@@ -75,13 +75,15 @@ func checkTxLoad() error {
 	expectedBlock := 0
 	if config.LastCheckedBlock == 0 {
 		expectedBlock = int(currentBlock) - blockDifferenceForMaxTxLoad
+		config.LastCheckedBlock = expectedBlock
 	} else {
 		expectedBlock = config.LastCheckedBlock + blockDifferenceForMaxTxLoad
 	}
 
 	if int(currentBlock) >= expectedBlock {
-		oldBlock := int(currentBlock) - blockDifferenceForMaxTxLoad + 1
-		err := checkForMaxTxLoad(int(currentBlock), oldBlock)
+		oldBlock := config.LastCheckedBlock
+		newBlock := oldBlock + blockDifferenceForMaxTxLoad - 1
+		err := checkForMaxTxLoad(newBlock, oldBlock)
 		if err != nil {
 			return err
 		}
