@@ -14,6 +14,7 @@ var (
 	MaxTxLoad                   string
 	BlockDifferenceForMaxTxLoad string
 	MaxTxPerBlock               string
+	ChainID                     string
 )
 
 // ReadConfig reads config file into the Config struct and returns it
@@ -64,5 +65,13 @@ func ReadConfig() error {
 	}
 	MaxTxPerBlock = maxTxPerBlock
 	Logger.Infof("MaxTxPerBlock: %v", maxTxPerBlock)
+
+	chainID, exists := os.LookupEnv("CHAIN_ID")
+	if !exists || chainID == "" {
+		return errors.New("CHAIN_ID cannot be empty")
+	}
+	ChainID = chainID
+	Logger.Infof("ChainID: %v", ChainID)
+
 	return nil
 }
