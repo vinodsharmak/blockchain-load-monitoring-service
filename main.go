@@ -1,8 +1,6 @@
 package main
 
 import (
-	"time"
-
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/service"
 	"github.com/sirupsen/logrus"
@@ -24,11 +22,15 @@ func main() {
 		log.Errorf("error in configuring blocktx count service", err)
 	}
 
-	for {
-		err = s.StartTxCountMonitoring()
-		if err != nil {
-			log.Errorf("Error while blockchain monitoring", err.Error())
-		}
-		time.Sleep(10000)
+	// for {
+	// 	err = s.StartTxCountMonitoring()
+	// 	if err != nil {
+	// 		log.Errorf("Error while tx load monitoring", err.Error())
+	// 	}
+	// 	time.Sleep(20000)
+	// }
+	err = service.StartPendingAndQueuedTxMonitoring()
+	if err != nil {
+		log.Errorf("Error while pending and queued tx monitoring : ", err)
 	}
 }

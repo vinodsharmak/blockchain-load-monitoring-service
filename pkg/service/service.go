@@ -7,3 +7,11 @@ func (s *Service) StartTxCountMonitoring() error {
 	}
 	return nil
 }
+
+func StartPendingAndQueuedTxMonitoring() error {
+	err := CheckPendingAndQueuedTxCount()
+	if err != nil {
+		return err
+	}
+	return nil
+}
