@@ -8,8 +8,6 @@ type txBody struct {
 	Gas   string `json:"gas"`
 	Hash  string `json:"hash"`
 	Nonce string `json:"nonce"`
-	Input string `json:"input"`
-	Value string `json:"value"`
 }
 
 type result struct {
