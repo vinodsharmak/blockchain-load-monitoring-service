@@ -15,22 +15,24 @@ func main() {
 
 	log := config.Logger
 
-	log.Info("Blockchain monitoring start")
-	s := service.Service{}
-	err = s.Configure()
-	if err != nil {
-		log.Errorf("error in configuring blocktx count service", err)
-	}
+	// log.Info("Blockchain monitoring start")
+	// s := service.Service{}
+	// err = s.Configure()
+	// if err != nil {
+	// 	log.Errorf("error in configuring blocktx count service", err)
+	// }
 
 	// for {
 	// 	err = s.StartTxCountMonitoring()
 	// 	if err != nil {
-	// 		log.Errorf("Error while tx load monitoring", err.Error())
+	// 		log.Errorf("Error while blockchain monitoring", err.Error())
 	// 	}
-	// 	time.Sleep(20000)
+	// 	time.Sleep(10000)
 	// }
-	err = service.StartPendingAndQueuedTxMonitoring()
+
+	err = service.CheckPendingAndQueuedTxCount()
 	if err != nil {
-		log.Errorf("Error while pending and queued tx monitoring : ", err)
+		log.Errorf("Error while pending and queued tx monitoring", err.Error())
 	}
+
 }

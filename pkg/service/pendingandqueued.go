@@ -2,14 +2,11 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
-	"io"
-	"net/http"
 	"strconv"
-	"strings"
 
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
-	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/constants"
+	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/helpers"
+	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/model"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
@@ -22,52 +19,75 @@ func CheckPendingAndQueuedTxCount() error {
 		return err
 	}
 
-	data, err := json.Marshal(map[string]interface{}{
-		"jsonrpc": "2.0",
-		"method":  "txpool_status",
-		"id":      config.ChainID,
-		"params":  []interface{}{},
-	})
+	txpool_status, err := helpers.TxPoolstatus()
 	if err != nil {
 		return err
 	}
 
-	resp, err := http.Post(config.BlockchainURL,
-		constants.Response_format, strings.NewReader(string(data)))
+	pendingHex := txpool_status.Result.Pending
+	queuedHex := txpool_status.Result.Queued
+	pending, err := hexutil.DecodeUint64(pendingHex)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return err
-	}
-	result := make(map[string]interface{})
-	err = json.Unmarshal(body, &result)
-	if err != nil {
-		return err
-	}
-
-	pendingHex := result["result"].(map[string]interface{})["pending"]
-	queuedHex := result["result"].(map[string]interface{})["queued"]
-	pending, err := hexutil.DecodeUint64(fmt.Sprintf("%s", pendingHex))
-	if err != nil {
-		return err
-	}
-	queued, err := hexutil.DecodeUint64(fmt.Sprintf("%s", queuedHex))
+	queued, err := hexutil.DecodeUint64(queuedHex)
 	if err != nil {
 		return err
 	}
 
 	log.Infof("Total number of pending transactions is %v, Total number of queued transaction is %v", pending, queued)
-
-	if err != nil {
-		log.Info("Error while gettting details", err)
-	}
-
-	if pending >= uint64(maxTxPending) || queued > 0 {
+	if pending >= uint64(maxTxPending) {
 		log.Infof("Total number of pending transactions is %v, which is higher than the set threshold of %v, please check the blockchain.", pending, maxTxPending)
+		txpool_content, err := helpers.TxPoolContent()
+		if err != nil {
+			return err
+		}
+		pending := txpool_content.Result.Pending
+		var pendingTransactions []model.TxBody
+		for key, value := range pending {
+			var transaction model.TxBody
+			transaction.From = key.String()
+			for key2, value2 := range value {
+				transaction.To = value2.To
+				transaction.Nonce = strconv.Itoa(key2)
+				transaction.Gas = value2.Gas
+				transaction.Hash = value2.Hash
+				pendingTransactions = append(pendingTransactions, transaction)
+			}
+		}
+		pendingTransactionsJson, err := json.MarshalIndent(pendingTransactions, " ", " ")
+		if err != nil {
+			return err
+		}
+		pendingTransactionstring := string(pendingTransactionsJson)
+		log.Infof(pendingTransactionstring)
+		// TODO: send email
+	}
+	if queued > 0 {
+		log.Infof("Total number of queued trnsactions is %v", queued)
+		txpool_content, err := helpers.TxPoolContent()
+		if err != nil {
+			return err
+		}
+		queued := txpool_content.Result.Queued
+		var queuedTransactions []model.TxBody
+		for key, value := range queued {
+			var transaction model.TxBody
+			transaction.From = key.String()
+			for key2, value2 := range value {
+				transaction.To = value2.To
+				transaction.Nonce = strconv.Itoa(key2)
+				transaction.Gas = value2.Gas
+				transaction.Hash = value2.Hash
+				queuedTransactions = append(queuedTransactions, transaction)
+			}
+		}
+		queuedTransactionsJson, err := json.MarshalIndent(queuedTransactions, " ", " ")
+		if err != nil {
+			return err
+		}
+		queuedTransactionstring := string(queuedTransactionsJson)
+		log.Infof(queuedTransactionstring)
 		// TODO: send email
 	}
 

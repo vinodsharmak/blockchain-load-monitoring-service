@@ -79,7 +79,7 @@ func ReadConfig() error {
 		return errors.New("CHAIN_ID cannot be empty")
 	}
 	ChainID = chainID
-	Logger.Infof("ChainID: %v", chainID)
+	Logger.Infof("ChainID: %v", ChainID)
 
 	return nil
 
