@@ -21,6 +21,7 @@ func main() {
 
 	s := service.Service{}
 	s := service.GasUsedService{}
+	s := service.Service{}
 	err = s.Configure()
 	if err != nil {
 		log.Error("Error while configuring the sub-services : ", err)

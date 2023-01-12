@@ -38,7 +38,8 @@ func (s *Service) StartPendingAndQueuedTxMonitoring() error {
 	return nil
 
 }
-func (s *GasUsedService) StartGasUsedtMonitoring() error {
+
+func (s *Service) StartGasUsedtMonitoring() error {
 	err := s.checkGasUsed()
 	if err != nil {
 		return err
