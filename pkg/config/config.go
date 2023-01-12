@@ -9,13 +9,15 @@ import (
 )
 
 var (
-	BlockchainURL               string
-	Logger                      *logger.Logger
-	MaxTxLoad                   string
-	BlockDifferenceForMaxTxLoad string
-	MaxTxPerBlock               string
-	MaxTxPending                string
-	ChainID                     string
+	BlockchainURL                string
+	Logger                       *logger.Logger
+	MaxTxLoad                    string
+	BlockDifferenceForMaxTxLoad  string
+	MaxTxPerBlock                string
+	MaxTxPending                 string
+	ChainID                      string
+	MaxGasUsedPerBlock           string
+	BlockDifferenceForMaxGasUsed string
 )
 
 // ReadConfig reads config file into the Config struct and returns it
@@ -80,6 +82,19 @@ func ReadConfig() error {
 	}
 	ChainID = chainID
 	Logger.Infof("ChainID: %v", ChainID)
+	maxGasUsedPerBlock, exists := os.LookupEnv("MAX_GAS_USED_PER_BLOCK")
+	if !exists || maxGasUsedPerBlock == "" {
+		return errors.New("MAX_GAS_USED_PER_BLOCK cannot be empty")
+	}
+	MaxGasUsedPerBlock = maxGasUsedPerBlock
+	Logger.Infof("MaxGasUsedPerBlock: %v", maxGasUsedPerBlock)
+
+	blockDifferenceForMaxGasUsed, exists := os.LookupEnv("BLOCK_DIFFERENCE_FOR_MAX_GAS_USED")
+	if !exists || blockDifferenceForMaxGasUsed == "" {
+		return errors.New("BLOCK_DIFFERENCE_FOR_MAX_GAS_USED cannot be empty")
+	}
+	BlockDifferenceForMaxGasUsed = blockDifferenceForMaxGasUsed
+	Logger.Infof("BlockDifferenceForMaxGasUsed: %v", blockDifferenceForMaxGasUsed)
 
 	return nil
 

@@ -20,6 +20,7 @@ func main() {
 	log.Info("Blockchain monitoring start")
 
 	s := service.Service{}
+	s := service.GasUsedService{}
 	err = s.Configure()
 	if err != nil {
 		log.Error("Error while configuring the sub-services : ", err)
@@ -28,6 +29,10 @@ func main() {
 	err = s.StartPendingAndQueuedTxMonitoring()
 	if err != nil {
 		log.Error("Error while pending and queued tx monitoring : ", err)
+
+	err = s.StartGasUsedtMonitoring()
+	if err != nil {
+		log.Errorf("Error while gas used monitoring", err.Error())
 	}
-	time.Sleep(10000)
+	
 }
