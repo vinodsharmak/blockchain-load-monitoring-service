@@ -7,9 +7,10 @@ import (
 )
 
 type Service struct {
-	ethClient        *ethclient.Client
-	lastCheckedBlock int
-	log              *logger.Logger
+	ethClient                  *ethclient.Client
+	lastCheckedBlockForTxLoad  int
+	lastCheckedBlockForGasUSed int
+	log                        *logger.Logger
 }
 
 func (s *Service) Configure() error {

@@ -10,8 +10,6 @@ import (
 
 // Check if we have reached the max gas used and trigger email alerts
 func (s *Service) checkForMaxGasUsed(startBlock int, endBlock int) error {
-	s.log.Info("CheckForMaxTxLoad start")
-
 	maxGasUsedPerBlock, err := strconv.Atoi(config.MaxGasUsedPerBlock)
 	if err != nil {
 		return err
@@ -35,13 +33,13 @@ func (s *Service) checkForMaxGasUsed(startBlock int, endBlock int) error {
 		s.log.Infof("Gas used per block from %v to %v is higher than the set threshold of %v, please check the blockchain", startBlock, endBlock, maxGasUsedPerBlock)
 		// TODO: Send email
 	}
-	s.lastCheckedBlock = endBlock
-	s.log.Info("CheckForMaxTxLoad end")
+	s.lastCheckedBlockForGasUSed = endBlock
 	return nil
 }
 
 // check the current block and set the block range for gas used
 func (s *Service) checkGasUsed() error {
+	s.log.Info("CheckForMaxGasUsed start")
 	blockDifferenceForMaxGasUsed, err := strconv.Atoi(config.BlockDifferenceForMaxGasUsed)
 	if err != nil {
 		return err
@@ -53,20 +51,20 @@ func (s *Service) checkGasUsed() error {
 	}
 
 	expectedBlock := 0
-	if s.lastCheckedBlock == 0 {
+	if s.lastCheckedBlockForGasUSed == 0 {
 		expectedBlock = int(currentBlock) - blockDifferenceForMaxGasUsed
-		s.lastCheckedBlock = expectedBlock
+		s.lastCheckedBlockForGasUSed = expectedBlock
 	} else {
-		expectedBlock = s.lastCheckedBlock + blockDifferenceForMaxGasUsed
+		expectedBlock = s.lastCheckedBlockForGasUSed + blockDifferenceForMaxGasUsed
 	}
 
 	if int(currentBlock) >= expectedBlock {
-		endBlock := s.lastCheckedBlock + blockDifferenceForMaxGasUsed - 1
-		err := s.checkForMaxGasUsed(s.lastCheckedBlock, endBlock)
+		endBlock := s.lastCheckedBlockForGasUSed + blockDifferenceForMaxGasUsed - 1
+		err := s.checkForMaxGasUsed(s.lastCheckedBlockForGasUSed, endBlock)
 		if err != nil {
 			return err
 		}
 	}
-
+	s.log.Info("CheckForMaxGasUsed end")
 	return nil
 }

@@ -45,7 +45,7 @@ func (s *Service) checkForMaxTxLoad(startBlock int, endBlock int) error {
 		// TODO: send email
 	}
 
-	s.lastCheckedBlock = endBlock
+	s.lastCheckedBlockForTxLoad = endBlock
 	s.log.Info("CheckForMaxTxLoad end")
 	return nil
 }
@@ -63,16 +63,16 @@ func (s *Service) checkTxLoad() error {
 	}
 
 	expectedBlock := 0
-	if s.lastCheckedBlock == 0 {
+	if s.lastCheckedBlockForTxLoad == 0 {
 		expectedBlock = int(currentBlock) - blockDifferenceForMaxTxLoad
-		s.lastCheckedBlock = expectedBlock
+		s.lastCheckedBlockForTxLoad = expectedBlock
 	} else {
-		expectedBlock = s.lastCheckedBlock + blockDifferenceForMaxTxLoad
+		expectedBlock = s.lastCheckedBlockForTxLoad + blockDifferenceForMaxTxLoad
 	}
 
 	if int(currentBlock) >= expectedBlock {
-		endBlock := s.lastCheckedBlock + blockDifferenceForMaxTxLoad - 1
-		err := s.checkForMaxTxLoad(s.lastCheckedBlock, endBlock)
+		endBlock := s.lastCheckedBlockForTxLoad + blockDifferenceForMaxTxLoad - 1
+		err := s.checkForMaxTxLoad(s.lastCheckedBlockForTxLoad, endBlock)
 		if err != nil {
 			return err
 		}
