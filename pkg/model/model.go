@@ -10,20 +10,20 @@ type TxBody struct {
 	Nonce string `json:"nonce"`
 }
 
-type result struct {
+type Result struct {
 	Pending map[common.Address]map[int]TxBody `json:"pending"`
 	Queued  map[common.Address]map[int]TxBody `json:"queued"`
 }
 
 type Response struct {
-	Result result `json:"result"`
+	Result Result `json:"result"`
 }
 
-type txPoolstatusresult struct {
+type TxPoolstatusresult struct {
 	Pending string
 	Queued  string
 }
 
 type TxPoolStatusResponse struct {
-	Result txPoolstatusresult `json:"result"`
+	Result TxPoolstatusresult `json:"result"`
 }
