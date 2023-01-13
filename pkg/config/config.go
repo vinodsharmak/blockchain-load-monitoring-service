@@ -18,6 +18,7 @@ var (
 	ChainID                      string
 	MaxGasUsedPerBlock           string
 	BlockDifferenceForMaxGasUsed string
+	TimeIntervalForSubService    string
 )
 
 // ReadConfig reads config file into the Config struct and returns it
@@ -95,6 +96,13 @@ func ReadConfig() error {
 	}
 	BlockDifferenceForMaxGasUsed = blockDifferenceForMaxGasUsed
 	Logger.Infof("BlockDifferenceForMaxGasUsed: %v", blockDifferenceForMaxGasUsed)
+
+	timeIntervalForSubService, exists := os.LookupEnv("TIME_INTERVAL_FOR_SUB_SERVICES")
+	if !exists || timeIntervalForSubService == "" {
+		return errors.New("TIME_INTERVAL_FOR_SUB_SERVICES cannot be empty")
+	}
+	TimeIntervalForSubService = timeIntervalForSubService
+	Logger.Infof("TimeIntervalForSubService: %v", timeIntervalForSubService)
 
 	return nil
 

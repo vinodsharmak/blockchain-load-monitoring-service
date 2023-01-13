@@ -1,6 +1,9 @@
 package main
 
 import (
+	"strconv"
+	"time"
+
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/service"
 	"github.com/sirupsen/logrus"
@@ -18,24 +21,30 @@ func main() {
 	log.Info("Blockchain monitoring start")
 
 	s := service.Service{}
-
 	err = s.Configure()
 	if err != nil {
 		log.Error("Error while configuring the sub-services : ", err)
 	}
 
-	err = s.StartTxCountMonitoring()
+	timeInterval, err := strconv.Atoi(config.TimeIntervalForSubService)
 	if err != nil {
-		log.Error("Error while pending and queued tx monitoring : ", err)
+		log.Error("Error while string to integer conversion of timeInterval : ", err)
 	}
-
-	err = s.StartPendingAndQueuedTxMonitoring()
-	if err != nil {
-		log.Error("Error while pending and queued tx monitoring : ", err)
-	}
-
-	err = s.StartGasUsedtMonitoring()
-	if err != nil {
-		log.Errorf("Error while gas used monitoring", err.Error())
+	for {
+		err = s.StartTxCountMonitoring()
+		if err != nil {
+			log.Error("Error while pending and queued tx monitoring : ", err)
+		}
+		time.Sleep(time.Duration(timeInterval) * time.Second)
+		err = s.StartPendingAndQueuedTxMonitoring()
+		if err != nil {
+			log.Error("Error while pending and queued tx monitoring : ", err)
+		}
+		time.Sleep(time.Duration(timeInterval) * time.Second)
+		err = s.StartGasUsedtMonitoring()
+		if err != nil {
+			log.Errorf("Error while gas used monitoring", err.Error())
+		}
+		time.Sleep(time.Duration(timeInterval) * time.Second)
 	}
 }
