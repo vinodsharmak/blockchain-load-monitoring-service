@@ -6,25 +6,7 @@ import (
 	"strconv"
 
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
-	"github.com/antigloss/go/logger"
-	"github.com/ethereum/go-ethereum/ethclient"
 )
-
-type Service struct {
-	ethClient        *ethclient.Client
-	lastCheckedBlock int
-	log              *logger.Logger
-}
-
-func (s *Service) Configure() error {
-	var err error
-	s.ethClient, err = ethclient.Dial(config.BlockchainURL)
-	if err != nil {
-		return err
-	}
-	s.log = config.Logger
-	return nil
-}
 
 // Check if we have reached the max tx load and trigger email alerts
 func (s *Service) checkForMaxTxLoad(startBlock int, endBlock int) error {
