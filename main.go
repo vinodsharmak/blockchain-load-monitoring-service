@@ -18,11 +18,13 @@ func main() {
 	log := config.Logger
 
 	// log.Info("Blockchain monitoring start")
+	log.Info("Blockchain monitoring start")
+
 	s := service.Service{}
 
 	err = s.Configure()
 	if err != nil {
-		log.Errorf("error in configuring blocktx count service", err)
+		log.Error("Error while configuring the sub-services : ", err)
 	}
 	for {
 		err = s.StartTxCountMonitoring()
@@ -43,4 +45,9 @@ func main() {
 	// }
 	// fmt.Println("RESPONSE: ", string(bytes))
 
+	err = s.StartPendingAndQueuedTxMonitoring()
+	if err != nil {
+		log.Error("Error while pending and queued tx monitoring : ", err)
+	}
+	time.Sleep(10000)
 }

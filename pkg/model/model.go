@@ -28,3 +28,11 @@ type TxPoolContentStuckMail struct {
 	PendingContent []TxBody
 	QueuedContent  []TxBody
 }
+type TxPoolstatusresult struct {
+	Pending string
+	Queued  string
+}
+
+type TxPoolStatusResponse struct {
+	Result TxPoolstatusresult `json:"result"`
+}

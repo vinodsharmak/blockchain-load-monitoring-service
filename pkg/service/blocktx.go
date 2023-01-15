@@ -6,22 +6,7 @@ import (
 	"strconv"
 
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
-	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/model"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
 )
-
-func (s *Service) Configure() error {
-	var err error
-	s.ethClient, err = ethclient.Dial(config.BlockchainURL)
-	if err != nil {
-		return err
-	}
-	s.log = config.Logger
-	s.PendingTx = make(map[common.Address]map[uint64]model.TxBody)
-	s.QueuedTx = make(map[common.Address]map[uint64]model.TxBody)
-	return nil
-}
 
 // Check if we have reached the max tx load and trigger email alerts
 func (s *Service) checkForMaxTxLoad(startBlock int, endBlock int) error {
