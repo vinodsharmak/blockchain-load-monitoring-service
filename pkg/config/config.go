@@ -91,7 +91,7 @@ func ReadConfig() error {
 	if err != nil {
 		return errors.New("unable to parse txpoolTimeLimit from string to integer, invalid format")
 	}
-	Logger.Infof("ChainID: %v", ChainID)
+	Logger.Infof("TxpoolTimeLimit: %v", TxpoolTimeLimit)
 
 	return nil
 

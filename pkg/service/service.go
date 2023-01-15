@@ -1,8 +1,6 @@
 package service
 
 import (
-	"time"
-
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/model"
 	"github.com/antigloss/go/logger"
@@ -36,7 +34,7 @@ func (s *Service) StartTxCountMonitoring() error {
 		return err
 	}
 
-	time.Sleep(time.Second * 10)
+	// time.Sleep(time.Second * 10)
 
 	err = s.checkTxLoad()
 	if err != nil {

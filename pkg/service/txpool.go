@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"time"
 
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
@@ -35,17 +34,11 @@ func (s *Service) txPoolStuck() error {
 		s.QueuedTx = make(map[common.Address]map[uint64]model.TxBody)
 	}
 
-	// mailContentBytes, err := json.MarshalIndent(txPoolContentStuckMail, "\n", "\n")
-	// if err != nil {
-	// 	return err
-	// }
-	// json.Marshal(txPoolContentStuckMail)
 	mailContentString, err := helpers.PrepareEmailBodyForTxPoolContent(txPoolContentStuckMail)
 	if err != nil {
 		return err
 	}
-	fmt.Println("TXPOOL STUCK MAIL BODY:\n", mailContentString)
-	// fmt.Println("TXPOOL LOCAL:", s.PendingTx)
+	s.log.Info("TXPOOL STUCK STATUS: \n", mailContentString)
 
 	return nil
 }
