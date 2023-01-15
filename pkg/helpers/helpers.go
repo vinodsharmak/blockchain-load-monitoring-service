@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -33,4 +34,36 @@ func TxPoolContent() (model.Response, error) {
 	}
 
 	return response, nil
+}
+
+func PrepareEmailBodyForTxPoolContent(txpoolContent model.TxPoolContentStuckMail) (string, error) {
+	msg := fmt.Sprintf("Pending Count = %v \n", txpoolContent.PendingCount)
+	msg = msg + fmt.Sprintf("Queued Count = %v \n{\"Pending Transactions\": [", txpoolContent.QueuedCount)
+	for i, txBody := range txpoolContent.PendingContent {
+		bytes, err := json.Marshal(txBody)
+		if err != nil {
+			return msg, err
+		}
+		if i == len(txpoolContent.PendingContent)-1 {
+			msg = msg + string(bytes)
+		} else {
+			msg = msg + string(bytes) + ",\n"
+		}
+
+	}
+	msg = msg + "], \n\"Queued Transaction \": ["
+	for i, txBody := range txpoolContent.QueuedContent {
+		bytes, err := json.Marshal(txBody)
+		if err != nil {
+			return msg, err
+		}
+		if i == len(txpoolContent.QueuedContent)-1 {
+			msg = msg + string(bytes)
+		} else {
+			msg = msg + string(bytes) + ",\n"
+		}
+
+	}
+	msg = msg + "]}"
+	return msg, nil
 }

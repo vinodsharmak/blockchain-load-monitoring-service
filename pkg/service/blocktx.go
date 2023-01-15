@@ -6,15 +6,10 @@ import (
 	"strconv"
 
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
-	"github.com/antigloss/go/logger"
+	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/model"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
-
-type Service struct {
-	ethClient        *ethclient.Client
-	lastCheckedBlock int
-	log              *logger.Logger
-}
 
 func (s *Service) Configure() error {
 	var err error
@@ -23,6 +18,8 @@ func (s *Service) Configure() error {
 		return err
 	}
 	s.log = config.Logger
+	s.PendingTx = make(map[common.Address]map[uint64]model.TxBody)
+	s.QueuedTx = make(map[common.Address]map[uint64]model.TxBody)
 	return nil
 }
 

@@ -1,20 +1,30 @@
 package model
 
-import "github.com/ethereum/go-ethereum/common"
+import (
+	"github.com/ethereum/go-ethereum/common"
+)
 
-type txBody struct {
-	From  string `json:"from"`
-	To    string `json:"to"`
-	Gas   string `json:"gas"`
-	Hash  string `json:"hash"`
-	Nonce string `json:"nonce"`
+type TxBody struct {
+	From             common.Address `json:"from"`
+	To               common.Address `json:"to"`
+	Gas              string         `json:"gas"`
+	Hash             common.Hash    `json:"hash"`
+	Nonce            string         `json:"nonce"`
+	FoundAtEpochTime int64
 }
 
-type result struct {
-	Pending map[common.Address]map[int]txBody `json:"pending"`
-	Queued  map[common.Address]map[int]txBody `json:"queued"`
+type Result struct {
+	Pending map[common.Address]map[uint64]TxBody `json:"pending"`
+	Queued  map[common.Address]map[uint64]TxBody `json:"queued"`
 }
 
 type Response struct {
-	Result result `json:"result"`
+	Result Result `json:"result"`
+}
+
+type TxPoolContentStuckMail struct {
+	PendingCount   int
+	QueuedCount    int
+	PendingContent []TxBody
+	QueuedContent  []TxBody
 }
