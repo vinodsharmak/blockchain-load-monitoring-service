@@ -36,6 +36,7 @@ func (s *Service) BlockchainMonitoringService() error {
 	s.log.Info("starting blockchain monitoring service")
 
 	for {
+		s.log.Info("-----------------------------------------------CYCLE-START-----------------------------------------------")
 		//check transaction load on blockchain
 		err := s.checkTxLoad()
 		if err != nil {
@@ -66,5 +67,9 @@ func (s *Service) BlockchainMonitoringService() error {
 		if err != nil {
 			return fmt.Errorf("txPoolStuck: %s", err)
 		}
+
+		time.Sleep(time.Second * time.Duration(config.TimeIntervalForSubService))
+
+		s.log.Info("-----------------------------------------------CYCLE-END-----------------------------------------------")
 	}
 }
