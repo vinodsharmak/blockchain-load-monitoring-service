@@ -44,7 +44,8 @@ func (s *Service) txPoolStuck() error {
 	}
 
 	s.log.Info("txPoolStuck result:\n", mailContentString)
-	err = email.SendEmail(mailContentString)
+	emailMessage := "Transactoions stuck inside the transaction pool, please find the details below : " + mailContentString
+	err = email.SendEmail(emailMessage)
 	if err != nil {
 		s.log.Info("Error while sending Email")
 		return err
