@@ -22,7 +22,7 @@ type Response struct {
 	Result Result `json:"result"`
 }
 
-type TxPoolContentStuckMail struct {
+type TxPoolContentMail struct {
 	PendingCount   int
 	QueuedCount    int
 	PendingContent []TxBody

@@ -1,8 +1,6 @@
 package service
 
 import (
-	"encoding/json"
-	"fmt"
 	"strconv"
 
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
@@ -12,8 +10,11 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
+var txPoolCountMail model.TxPoolContentMail
+
 func (s *Service) checkPendingAndQueuedTxCount() error {
 	s.log.Info("CheckPendingAndQueuedTxCount start")
+	txPoolCountMail = model.TxPoolContentMail{}
 
 	maxTxPending, err := strconv.Atoi(config.MaxTxPending)
 	if err != nil {
@@ -33,86 +34,73 @@ func (s *Service) checkPendingAndQueuedTxCount() error {
 	if err != nil {
 		return err
 	}
+
+	txPoolCountMail.PendingCount = int(pendingTxCount)
+	txPoolCountMail.QueuedCount = int(queuedTxCount)
+
 	s.log.Infof("Total number of pending transactions is %v, Total number of queued transaction is %v", pendingTxCount, queuedTxCount)
 	if pendingTxCount >= uint64(maxTxPending) || queuedTxCount > 0 {
-		pendingTransactionDetails, err := getPendingTransactionDetails()
+		err := getPendingTransactionDetails()
 		if err != nil {
 			return err
 		}
-		queuedTransactionDetails, err := getQueuedTransactionDetails()
+		err = getQueuedTransactionDetails()
 		if err != nil {
 			return err
 		}
-		pendingTransactionsBytes, err := json.MarshalIndent(pendingTransactionDetails, " ", "")
-		if err != nil {
-			return err
-		}
-		pendingTransactionString := string(pendingTransactionsBytes)
-		queuedTransactionsBytes, err := json.MarshalIndent(queuedTransactionDetails, " ", " ")
-		if err != nil {
-			return err
-		}
-		queuedTransactionsString := string(queuedTransactionsBytes)
+
 		emailMessage := "Alert ! \nfrom pending and queued transaction count check ! \n" +
-			"Please find the transaction pool details below : \n "
-		if len(pendingTransactionDetails) >= maxTxPending {
+			"Please find the transaction pool details below : \n"
+		if txPoolCountMail.PendingCount >= maxTxPending {
 			emailMessage = emailMessage + "Pending transaction count is higher than the threshold of " +
-				config.MaxTxPending + "! \n"
-			emailMessage = emailMessage + "Pending Transaction details : \n" + pendingTransactionString + "\n"
+				config.MaxTxPending + "!\n"
 		}
-		if len(queuedTransactionDetails) > 0 {
-			emailMessage = "Blockchain have queued transactions in the pool !"
-			emailMessage = emailMessage + "Queued Transaction details : \n" + queuedTransactionsString + "\n"
+		if txPoolCountMail.QueuedCount > 0 {
+			emailMessage = emailMessage + "Blockchain have queued transactions in the pool !\n"
+
 		}
+		txpoolContentString, err := helpers.PrepareEmailBodyForTxPoolContent(txPoolCountMail)
+		if err != nil {
+			return err
+		}
+		emailMessage = emailMessage + txpoolContentString
 		s.log.Infof(emailMessage)
 		err = email.SendEmail(emailMessage)
 		if err != nil {
 			return err
 		}
 	}
-	s.log.Info("CheckPendingAndQueuedTxCount end")
+	s.log.Info("checkPendingAndQueuedTxCount end")
 
 	return nil
 }
 
-func getPendingTransactionDetails() ([]model.TxBody, error) {
-	var pendingTransactions []model.TxBody
+func getPendingTransactionDetails() error {
 	txpool_content, err := helpers.TxPoolContent()
 	if err != nil {
-		return pendingTransactions, err
+		return err
 	}
 	pending := txpool_content.Result.Pending
-	for fromAddress, transactions := range pending {
-		var transaction model.TxBody
-		transaction.From = fromAddress
+	for _, transactions := range pending {
 		for nonce, txBody := range transactions {
-			transaction.To = txBody.To
-			transaction.Nonce = fmt.Sprintf("%v", nonce)
-			transaction.Gas = txBody.Gas
-			transaction.Hash = txBody.Hash
-			pendingTransactions = append(pendingTransactions, transaction)
+			txBody.Nonce = strconv.Itoa(int(nonce))
+			txPoolCountMail.PendingContent = append(txPoolContentStuckMail.PendingContent, txBody)
 		}
 	}
-	return pendingTransactions, err
+	return err
 }
 
-func getQueuedTransactionDetails() ([]model.TxBody, error) {
-	var queuedTransactions []model.TxBody
+func getQueuedTransactionDetails() error {
 	txpool_content, err := helpers.TxPoolContent()
 	if err != nil {
-		return queuedTransactions, err
+		return err
 	}
 	queued := txpool_content.Result.Queued
-	for fromAddress, transactions := range queued {
-		var transaction model.TxBody
-		transaction.From = fromAddress
+	for _, transactions := range queued {
 		for nonce, txBody := range transactions {
-			transaction.To = txBody.To
-			transaction.Nonce = fmt.Sprintf("%v", nonce)
-			transaction.Gas = txBody.Gas
-			transaction.Hash = txBody.Hash
-			queuedTransactions = append(queuedTransactions, transaction)
+			txBody.Nonce = strconv.Itoa(int(nonce))
+			txPoolCountMail.QueuedContent = append(txPoolContentStuckMail.QueuedContent, txBody)
 		}
 	}
-	return queuedTransactions, err
+	return err
 }

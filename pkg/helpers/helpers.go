@@ -43,7 +43,7 @@ func TxPoolContent() (model.Response, error) {
 	return response, nil
 }
 
-func PrepareEmailBodyForTxPoolContent(txpoolContent model.TxPoolContentStuckMail) (string, error) {
+func PrepareEmailBodyForTxPoolContent(txpoolContent model.TxPoolContentMail) (string, error) {
 	msg := fmt.Sprintf("Pending Count = %v \n", txpoolContent.PendingCount)
 	msg = msg + fmt.Sprintf("Queued Count = %v \n{\"Pending Transactions\": \n [", txpoolContent.QueuedCount)
 	for i, txBody := range txpoolContent.PendingContent {

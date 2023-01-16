@@ -1,6 +1,7 @@
 package service
 
 import (
+	"strconv"
 	"time"
 
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
@@ -10,11 +11,11 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-var txPoolContentStuckMail model.TxPoolContentStuckMail
+var txPoolContentStuckMail model.TxPoolContentMail
 
 func (s *Service) txPoolStuck() error {
 	s.log.Infof("txPoolStuck started")
-	txPoolContentStuckMail = model.TxPoolContentStuckMail{}
+	txPoolContentStuckMail = model.TxPoolContentMail{}
 	res, err := helpers.TxPoolContent()
 	if err != nil {
 		return err
@@ -70,6 +71,7 @@ func (s *Service) updatePendingContent(pending map[common.Address]map[uint64]mod
 					}
 				} else {
 					txBody.FoundAtEpochTime = time.Now().Unix()
+					txBody.Nonce = strconv.Itoa(int(nonce))
 					s.PendingTx[sender][nonce] = txBody
 				}
 			}
@@ -77,6 +79,7 @@ func (s *Service) updatePendingContent(pending map[common.Address]map[uint64]mod
 			for nonce, txBody := range transactions {
 				txBody.FoundAtEpochTime = time.Now().Unix()
 				s.PendingTx[sender] = make(map[uint64]model.TxBody)
+				txBody.Nonce = strconv.Itoa(int(nonce))
 				s.PendingTx[sender][nonce] = txBody
 			}
 		}
@@ -93,10 +96,12 @@ func (s *Service) updateQueuedContent(queued map[common.Address]map[uint64]model
 					if timeElapsedInSeconds >= int64(config.TxpoolTimeLimit) {
 						s.log.Infof("found tx stuck in queued: %s", s.QueuedTx[sender][nonce])
 						txPoolContentStuckMail.QueuedCount++
+						txBody.Nonce = strconv.Itoa(int(nonce))
 						txPoolContentStuckMail.QueuedContent = append(txPoolContentStuckMail.QueuedContent, s.QueuedTx[sender][nonce])
 					}
 				} else {
 					txBody.FoundAtEpochTime = time.Now().Unix()
+					txBody.Nonce = strconv.Itoa(int(nonce))
 					s.QueuedTx[sender][nonce] = txBody
 				}
 			}
@@ -104,6 +109,7 @@ func (s *Service) updateQueuedContent(queued map[common.Address]map[uint64]model
 			for nonce, txBody := range transactions {
 				txBody.FoundAtEpochTime = time.Now().Unix()
 				s.QueuedTx[sender] = make(map[uint64]model.TxBody)
+				txBody.Nonce = strconv.Itoa(int(nonce))
 				s.QueuedTx[sender][nonce] = txBody
 			}
 		}
