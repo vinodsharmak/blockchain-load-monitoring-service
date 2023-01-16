@@ -9,4 +9,4 @@ services:
     env_file: .env
     restart: on-failure
     volumes:
-      - ./logs:/app/logs
+      - ./logs_${NETWORK}:/app/logs_${NETWORK}

@@ -30,7 +30,7 @@ var (
 func ReadConfig() error {
 	var err error
 	Logger, err = logger.New(&logger.Config{
-		LogDir:          "./logs",
+		LogDir:          "./logs_" + Network,
 		LogFileMaxSize:  50,
 		LogFileMaxNum:   10,
 		LogFileNumToDel: 3,
