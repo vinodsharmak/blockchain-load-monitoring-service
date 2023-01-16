@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
+	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/email"
 )
 
 // Check if we have reached the max tx load and trigger email alerts
@@ -32,7 +33,16 @@ func (s *Service) checkForMaxTxLoad(startBlock int, endBlock int) error {
 		}
 		if int(transactionCount) >= maxTxPerBlock {
 			s.log.Infof("Transaction in %v was %v,which is higher than the tx/block threshold of %v Please check the blockchain.", i, int(transactionCount), maxTxPerBlock)
-			// TODO: send email
+
+			emaiMessage := "Alert, Blockchain has reached its threshold for tx/block! \n\n" +
+				"Maximum transaction threshold per block is " + config.MaxTxPerBlock + " and " + strconv.Itoa(i) + " has " +
+				strconv.Itoa(int(transactionCount)) + "ttrnsactions. Please check the block."
+
+			err := email.SendEmail(emaiMessage)
+			if err != nil {
+				s.log.Info("Error while sending Email")
+				return err
+			}
 		}
 		totalTransactions = totalTransactions + int(transactionCount)
 	}
@@ -40,7 +50,17 @@ func (s *Service) checkForMaxTxLoad(startBlock int, endBlock int) error {
 
 	if totalTransactions >= maxTxLoad {
 		s.log.Infof("Transaction load is higher than the %v for %v blocks, Please check the blockchain.", maxTxLoad, config.BlockDifferenceForMaxTxLoad)
-		// TODO: send email
+
+		emaiMessage := "Alert, Blockchain has reached its threshold for tx/block for range of blocks ! \n\n" +
+			"Maximum threshold per " + config.BlockDifferenceForMaxTxLoad + " blocks is " +
+			config.MaxTxLoad + "\n" + "Number of transactions between " + strconv.Itoa(startBlock) +
+			" and " + strconv.Itoa(endBlock) + " was " + strconv.Itoa(totalTransactions) + ". Please check the blocks."
+
+		err := email.SendEmail(emaiMessage)
+		if err != nil {
+			s.log.Info("Error while sending Email")
+			return err
+		}
 	}
 
 	s.lastCheckedBlockForTxLoad = endBlock

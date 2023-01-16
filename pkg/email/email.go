@@ -28,18 +28,15 @@ func Config() error {
 	return nil
 }
 
-func SendEmail(subject string, message string) error {
+func SendEmail(message string) error {
 	log := config.Logger
 	log.Info("Email service start")
 
 	sender := config.SenderEmail
 	receivers := strings.Split(config.ReceiverEmails, ",")
+	subject := "Blockchain Monitoring Service Alert !"
 	charSet := constants.EmailCharSet
 	//validate data
-	if subject == "" {
-		log.Error("Subject cannot not be blank")
-		return errors.New("subject cannot not be blank")
-	}
 	if message == "" {
 		log.Error("Message cannot not be blank")
 		return errors.New("message cannot not be blank")

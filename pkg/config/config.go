@@ -10,16 +10,12 @@ import (
 )
 
 var (
-	BlockchainURL               string
-	Logger                      *logger.Logger
-	MaxTxLoad                   string
-	BlockDifferenceForMaxTxLoad string
-	SenderEmail                 string
-	ReceiverEmails              string
 	BlockchainURL                string
 	Logger                       *logger.Logger
 	MaxTxLoad                    string
 	BlockDifferenceForMaxTxLoad  string
+	SenderEmail                  string
+	ReceiverEmails               string
 	MaxTxPerBlock                string
 	MaxTxPending                 string
 	ChainID                      string

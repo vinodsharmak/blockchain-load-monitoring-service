@@ -16,14 +16,13 @@ func main() {
 		return
 	}
 
+	log := config.Logger
+
 	err = email.Config()
 	if err != nil {
-		logrus.Errorf("unable to configure ses: ", err)
+		log.Errorf("unable to configure ses: %v", err)
 		return
 	}
-
-	logging := config.Logger
-	log := config.Logger
 
 	// log.Info("Blockchain monitoring start")
 	log.Info("Blockchain monitoring start")
@@ -39,15 +38,16 @@ func main() {
 			log.Errorf("Error while blockchain monitoring", err.Error())
 		}
 		time.Sleep(time.Second * 10)
+		err = s.StartPendingAndQueuedTxMonitoring()
+		if err != nil {
+			log.Error("Error while pending and queued tx monitoring : ", err)
+		}
+		time.Sleep(time.Second * 10)
+		err = s.StartGasUsedtMonitoring()
+		if err != nil {
+			log.Errorf("Error while gas used monitoring", err.Error())
+		}
+		time.Sleep(time.Second * 10)
 	}
 
-	err = s.StartPendingAndQueuedTxMonitoring()
-	if err != nil {
-		log.Error("Error while pending and queued tx monitoring : ", err)
-
-	err = s.StartGasUsedtMonitoring()
-	if err != nil {
-		log.Errorf("Error while gas used monitoring", err.Error())
-	}
-	
 }

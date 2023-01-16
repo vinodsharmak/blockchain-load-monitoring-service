@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
+	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/email"
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/helpers"
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/model"
 	"github.com/ethereum/go-ethereum/common"
@@ -40,6 +41,11 @@ func (s *Service) txPoolStuck() error {
 	}
 	s.log.Info("TXPOOL STUCK STATUS: \n", mailContentString)
 
+	err = email.SendEmail(mailContentString)
+	if err != nil {
+		s.log.Info("Error while sending Email")
+		return err
+	}
 	return nil
 }
 
