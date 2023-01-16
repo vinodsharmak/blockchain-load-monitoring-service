@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/antigloss/go v1.18.1
-	github.com/aws/aws-sdk-go v1.44.173
+	github.com/aws/aws-sdk-go v1.44.180
 	github.com/ethereum/go-ethereum v1.10.26
 	github.com/joho/godotenv v1.4.0
 	github.com/sirupsen/logrus v1.9.0

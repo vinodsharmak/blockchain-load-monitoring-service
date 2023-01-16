@@ -31,7 +31,6 @@ func Config() error {
 }
 
 func SendEmail(message string) error {
-	log := config.Logger
 	log.Info("Email service start")
 
 	sender := config.SenderEmail

@@ -53,16 +53,16 @@ func (s *Service) checkPendingAndQueuedTxCount() error {
 			return err
 		}
 		queuedTransactionsString := string(queuedTransactionsBytes)
-		emailMessage := "Alert ! \n from pending and queued transaction count check ! \n" +
+		emailMessage := "Alert ! \nfrom pending and queued transaction count check ! \n" +
 			"Please find the transaction pool details below : \n "
 		if len(pendingTransactionDetails) >= maxTxPending {
 			emailMessage = emailMessage + "Pending transaction count is higher than the threshold of " +
-				config.MaxTxPending + "! \n "
-			emailMessage = emailMessage + "Pending Transaction details : \n " + pendingTransactionString + "\n"
+				config.MaxTxPending + "! \n"
+			emailMessage = emailMessage + "Pending Transaction details : \n" + pendingTransactionString + "\n"
 		}
 		if len(queuedTransactionDetails) > 0 {
-			emailMessage = "Blockchain have queued transactions in the pool ! "
-			emailMessage = emailMessage + "Queued Transaction details : \n " + queuedTransactionsString + "\n"
+			emailMessage = "Blockchain have queued transactions in the pool !"
+			emailMessage = emailMessage + "Queued Transaction details : \n" + queuedTransactionsString + "\n"
 		}
 		s.log.Infof(emailMessage)
 		err = email.SendEmail(emailMessage)

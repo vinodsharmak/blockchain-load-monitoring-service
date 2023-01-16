@@ -45,7 +45,7 @@ func TxPoolContent() (model.Response, error) {
 
 func PrepareEmailBodyForTxPoolContent(txpoolContent model.TxPoolContentStuckMail) (string, error) {
 	msg := fmt.Sprintf("Pending Count = %v \n", txpoolContent.PendingCount)
-	msg = msg + fmt.Sprintf("Queued Count = %v \n{\"Pending Transactions\": [", txpoolContent.QueuedCount)
+	msg = msg + fmt.Sprintf("Queued Count = %v \n{\"Pending Transactions\": \n [", txpoolContent.QueuedCount)
 	for i, txBody := range txpoolContent.PendingContent {
 		bytes, err := json.Marshal(txBody)
 		if err != nil {
@@ -58,7 +58,7 @@ func PrepareEmailBodyForTxPoolContent(txpoolContent model.TxPoolContentStuckMail
 		}
 
 	}
-	msg = msg + "], \n\"Queued Transaction \": ["
+	msg = msg + "], \n\"Queued Transactions \": \n ["
 	for i, txBody := range txpoolContent.QueuedContent {
 		bytes, err := json.Marshal(txBody)
 		if err != nil {

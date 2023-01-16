@@ -44,11 +44,14 @@ func (s *Service) txPoolStuck() error {
 	}
 
 	s.log.Info("txPoolStuck result:\n", mailContentString)
-	emailMessage := "Alert ! \n Transactions stuck inside the transaction pool, please find the details below : " + mailContentString
-	err = email.SendEmail(emailMessage)
-	if err != nil {
-		return err
+	if txPoolContentStuckMail.PendingCount > 0 || txPoolContentStuckMail.QueuedCount > 0 {
+		emailMessage := "Alert !\nTransactions stuck inside the transaction pool, please find the details below :\n" + mailContentString
+		err = email.SendEmail(emailMessage)
+		if err != nil {
+			return err
+		}
 	}
+
 	s.log.Infof("txPoolStuck end")
 
 	return nil

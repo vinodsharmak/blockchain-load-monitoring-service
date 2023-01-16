@@ -76,7 +76,7 @@ func (s *Service) checkForMaxTxLoad(startBlock int, endBlock int) error {
 
 	if totalTransactions >= maxTxLoad {
 		s.log.Infof("Transaction load is higher than the %v for %v blocks, Please check the blockchain.", maxTxLoad, config.BlockDifferenceForMaxTxLoad)
-		emaiMessage := "Alert ! \n Blockchain has reached its threshold for tx/block for range of blocks ! \n\n" +
+		emaiMessage := "Alert !\nBlockchain has reached its threshold for tx/block for range of blocks ! \n\n" +
 			"Maximum threshold per " + config.BlockDifferenceForMaxTxLoad + " blocks is " +
 			config.MaxTxLoad + "\n" + "Number of transactions between " + strconv.Itoa(startBlock) +
 			" and " + strconv.Itoa(endBlock) + " was " + strconv.Itoa(totalTransactions) + ". Please check the blocks."
