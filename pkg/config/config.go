@@ -2,8 +2,8 @@ package config
 
 import (
 	"errors"
-	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/antigloss/go/logger"
 	"github.com/joho/godotenv"
@@ -16,6 +16,17 @@ var (
 	BlockDifferenceForMaxTxLoad string
 	SenderEmail                 string
 	ReceiverEmails              string
+	BlockchainURL                string
+	Logger                       *logger.Logger
+	MaxTxLoad                    string
+	BlockDifferenceForMaxTxLoad  string
+	MaxTxPerBlock                string
+	MaxTxPending                 string
+	ChainID                      string
+	MaxGasUsedPerBlock           string
+	BlockDifferenceForMaxGasUsed string
+	TimeIntervalForSubService    string
+	TxpoolTimeLimit              int
 )
 
 // ReadConfig reads config file into the Config struct and returns it
@@ -32,7 +43,7 @@ func ReadConfig() error {
 	})
 
 	if err != nil {
-		panic(err)
+		return errors.New("unable to intialize logger")
 	}
 	err = godotenv.Load(".env")
 	if err != nil {
@@ -41,21 +52,21 @@ func ReadConfig() error {
 
 	blockchainURL, exists := os.LookupEnv("BLOCKCHAIN_URL")
 	if !exists || blockchainURL == "" {
-		return fmt.Errorf("%s", "Blockchian URL cannot be empty")
+		return errors.New("blockchian URL cannot be empty")
 	}
 	BlockchainURL = blockchainURL
 	Logger.Infof("BlockchainURL: %v", blockchainURL)
 
 	maxTxLoad, exists := os.LookupEnv("MAX_TX_LOAD")
 	if !exists || maxTxLoad == "" {
-		return fmt.Errorf("%s", "MAX_TX_LOAD cannot be empty")
+		return errors.New("MAX_TX_LOAD cannot be empty")
 	}
 	MaxTxLoad = maxTxLoad
 	Logger.Infof("MaxTxLoad: %v", maxTxLoad)
 
 	blockDifferenceForMaxTxLoad, exists := os.LookupEnv("BLOCK_DIFFERENCE_FOR_MAX_TX_LOAD")
 	if !exists || blockDifferenceForMaxTxLoad == "" {
-		return fmt.Errorf("%s", "BLOCK_DIFFERENCE_FOR_MAX_TX_LOAD cannot be empty")
+		return errors.New("BLOCK_DIFFERENCE_FOR_MAX_TX_LOAD cannot be empty")
 	}
 	BlockDifferenceForMaxTxLoad = blockDifferenceForMaxTxLoad
 	Logger.Infof("BlockDifferenceForMaxTxLoad: %v", blockDifferenceForMaxTxLoad)
@@ -71,6 +82,57 @@ func ReadConfig() error {
 		logger.Error("Receiver emails cannot be empty")
 	}
 	Logger.Info("Receivers for Email Service ", ReceiverEmails)
+	maxTxPerBlock, exists := os.LookupEnv("MAX_TX_PER_BLOCK")
+	if !exists || maxTxPerBlock == "" {
+		return errors.New("MAX_TX_PER_BLOCK cannot be empty")
+	}
+	MaxTxPerBlock = maxTxPerBlock
+	Logger.Infof("MaxTxPerBlock: %v", maxTxPerBlock)
+
+	maxTxPending, exists := os.LookupEnv("MAX_TX_PENDING")
+	if !exists || maxTxPending == "" {
+		return errors.New("MAX_TX_PENDING cannot be empty")
+	}
+	MaxTxPending = maxTxPending
+	Logger.Infof("MaxTxPending: %v", maxTxPending)
+
+	chainID, exists := os.LookupEnv("CHAIN_ID")
+	if !exists || chainID == "" {
+		return errors.New("CHAIN_ID cannot be empty")
+	}
+	ChainID = chainID
+	Logger.Infof("ChainID: %v", ChainID)
+	maxGasUsedPerBlock, exists := os.LookupEnv("MAX_GAS_USED_PER_BLOCK")
+	if !exists || maxGasUsedPerBlock == "" {
+		return errors.New("MAX_GAS_USED_PER_BLOCK cannot be empty")
+	}
+	MaxGasUsedPerBlock = maxGasUsedPerBlock
+	Logger.Infof("MaxGasUsedPerBlock: %v", maxGasUsedPerBlock)
+
+	blockDifferenceForMaxGasUsed, exists := os.LookupEnv("BLOCK_DIFFERENCE_FOR_MAX_GAS_USED")
+	if !exists || blockDifferenceForMaxGasUsed == "" {
+		return errors.New("BLOCK_DIFFERENCE_FOR_MAX_GAS_USED cannot be empty")
+	}
+	BlockDifferenceForMaxGasUsed = blockDifferenceForMaxGasUsed
+	Logger.Infof("BlockDifferenceForMaxGasUsed: %v", blockDifferenceForMaxGasUsed)
+
+	timeIntervalForSubService, exists := os.LookupEnv("TIME_INTERVAL_FOR_SUB_SERVICES")
+	if !exists || timeIntervalForSubService == "" {
+		return errors.New("TIME_INTERVAL_FOR_SUB_SERVICES cannot be empty")
+	}
+	TimeIntervalForSubService = timeIntervalForSubService
+	Logger.Infof("TimeIntervalForSubService: %v", timeIntervalForSubService)
+
+	txpoolTimeLimit, exists := os.LookupEnv("TXPOOL_TIME_LIMIT_IN_SECONDS")
+	if !exists || chainID == "" {
+		return errors.New("TXPOOL_TIME_LIMIT_IN_SECONDS cannot be empty")
+	}
+	TxpoolTimeLimit, err = strconv.Atoi(txpoolTimeLimit)
+	if err != nil {
+		return errors.New("unable to parse txpoolTimeLimit from string to integer, invalid format")
+	}
+	Logger.Infof("TxpoolTimeLimit: %v", TxpoolTimeLimit)
 
 	return nil
+
 }

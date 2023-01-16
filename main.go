@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/email"
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/service"
@@ -21,13 +23,31 @@ func main() {
 	}
 
 	logging := config.Logger
+	log := config.Logger
 
-	logging.Info("Blockchain monitoring start")
-	err = service.StartMonitoring()
+	// log.Info("Blockchain monitoring start")
+	log.Info("Blockchain monitoring start")
+
+	s := service.Service{}
+	err = s.Configure()
 	if err != nil {
-		logging.Errorf("Error while blockchain monitoring", err.Error())
-		logging.Info("Blockchain monitoring end")
-		return
+		log.Error("Error while configuring the sub-services : ", err)
 	}
-	logging.Info("Blockchain monitoring end")
+	for {
+		err = s.StartTxCountMonitoring()
+		if err != nil {
+			log.Errorf("Error while blockchain monitoring", err.Error())
+		}
+		time.Sleep(time.Second * 10)
+	}
+
+	err = s.StartPendingAndQueuedTxMonitoring()
+	if err != nil {
+		log.Error("Error while pending and queued tx monitoring : ", err)
+
+	err = s.StartGasUsedtMonitoring()
+	if err != nil {
+		log.Errorf("Error while gas used monitoring", err.Error())
+	}
+	
 }
