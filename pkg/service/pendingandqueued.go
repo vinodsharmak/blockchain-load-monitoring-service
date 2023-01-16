@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
+	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/email"
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/helpers"
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/model"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -52,21 +53,25 @@ func (s *Service) checkPendingAndQueuedTxCount() error {
 			return err
 		}
 		queuedTransactionsString := string(queuedTransactionsBytes)
-		emailMessage := "Alert from pending and queued transaction count check ! \n"
+		emailMessage := "Alert ! \n from pending and queued transaction count check ! \n" +
+			"Please find the transaction pool details below : \n "
 		if len(pendingTransactionDetails) >= maxTxPending {
 			emailMessage = emailMessage + "Pending transaction count is higher than the threshold of " +
 				config.MaxTxPending + "! \n "
+			emailMessage = emailMessage + "Pending Transaction details : \n " + pendingTransactionString + "\n"
 		}
 		if len(queuedTransactionDetails) > 0 {
 			emailMessage = "Blockchain have queued transactions in the pool ! "
+			emailMessage = emailMessage + "Queued Transaction details : \n " + queuedTransactionsString + "\n"
 		}
-		emailMessage = emailMessage + "Please find the trnsaction pool details below : \n " +
-			"Pending Transaction details : \n " + pendingTransactionString + "\n" +
-			"Queued Transaction details : \n" + queuedTransactionsString
 		s.log.Infof(emailMessage)
-		// TODO: send email
+		err = email.SendEmail(emailMessage)
+		if err != nil {
+			return err
+		}
 	}
 	s.log.Info("CheckPendingAndQueuedTxCount end")
+
 	return nil
 }
 

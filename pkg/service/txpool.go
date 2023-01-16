@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
+	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/email"
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/helpers"
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/model"
 	"github.com/ethereum/go-ethereum/common"
@@ -41,8 +42,15 @@ func (s *Service) txPoolStuck() error {
 	if err != nil {
 		return err
 	}
+
 	s.log.Info("txPoolStuck result:\n", mailContentString)
+	emailMessage := "Alert ! \n Transactions stuck inside the transaction pool, please find the details below : " + mailContentString
+	err = email.SendEmail(emailMessage)
+	if err != nil {
+		return err
+	}
 	s.log.Infof("txPoolStuck end")
+
 	return nil
 }
 

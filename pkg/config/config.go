@@ -14,6 +14,8 @@ var (
 	Logger                       *logger.Logger
 	MaxTxLoad                    string
 	BlockDifferenceForMaxTxLoad  string
+	SenderEmail                  string
+	ReceiverEmails               string
 	MaxTxPerBlock                string
 	MaxTxPending                 string
 	ChainID                      string
@@ -65,6 +67,17 @@ func ReadConfig() error {
 	BlockDifferenceForMaxTxLoad = blockDifferenceForMaxTxLoad
 	Logger.Infof("BlockDifferenceForMaxTxLoad: %v", BlockDifferenceForMaxTxLoad)
 
+	SenderEmail, exists = os.LookupEnv("SENDER_EMAIL")
+	if !exists || SenderEmail == "" {
+		Logger.Error("Sender email cannot be empty")
+	}
+	Logger.Info("Sender for Email Service ", SenderEmail)
+
+	ReceiverEmails, exists = os.LookupEnv("RECEIVER_EMAILS")
+	if !exists || ReceiverEmails == "" {
+		logger.Error("Receiver emails cannot be empty")
+	}
+	Logger.Info("Receivers for Email Service ", ReceiverEmails)
 	maxTxPerBlock, exists := os.LookupEnv("MAX_TX_PER_BLOCK")
 	if !exists || maxTxPerBlock == "" {
 		return errors.New("MAX_TX_PER_BLOCK cannot be empty")

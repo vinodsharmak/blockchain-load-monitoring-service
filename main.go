@@ -2,6 +2,7 @@ package main
 
 import (
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
+	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/email"
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/service"
 	"github.com/sirupsen/logrus"
 )
@@ -14,6 +15,13 @@ func main() {
 	}
 
 	log := config.Logger
+
+	err = email.Config()
+	if err != nil {
+		log.Errorf("unable to configure ses: %v", err)
+		return
+	}
+
 	s := service.Service{}
 	err = s.Configure()
 	if err != nil {

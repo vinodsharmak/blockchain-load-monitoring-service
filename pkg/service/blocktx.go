@@ -2,10 +2,12 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"math/big"
 	"strconv"
 
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
+	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/email"
 )
 
 // check the current block and set the block range for tx load test
@@ -51,7 +53,7 @@ func (s *Service) checkForMaxTxLoad(startBlock int, endBlock int) error {
 		return err
 	}
 
-	blocksWithHigherTxLoad := make(map[int]uint)
+	higherTxLoadBlocks := make(map[int]uint)
 
 	s.log.Infof("Calculating number of transactions between %v to %v ...", startBlock, endBlock)
 	totalTransactions := 0
@@ -66,7 +68,7 @@ func (s *Service) checkForMaxTxLoad(startBlock int, endBlock int) error {
 		}
 		if int(transactionCount) >= maxTxPerBlock {
 			s.log.Infof("Transaction in %v was %v,which is higher than the tx/block threshold of %v Please check the blockchain.", i, transactionCount, maxTxPerBlock)
-			blocksWithHigherTxLoad[i] = transactionCount
+			higherTxLoadBlocks[i] = transactionCount
 		}
 		totalTransactions = totalTransactions + int(transactionCount)
 	}
@@ -74,10 +76,29 @@ func (s *Service) checkForMaxTxLoad(startBlock int, endBlock int) error {
 
 	if totalTransactions >= maxTxLoad {
 		s.log.Infof("Transaction load is higher than the %v for %v blocks, Please check the blockchain.", maxTxLoad, config.BlockDifferenceForMaxTxLoad)
-		// TODO: send email
+		emaiMessage := "Alert ! \n Blockchain has reached its threshold for tx/block for range of blocks ! \n\n" +
+			"Maximum threshold per " + config.BlockDifferenceForMaxTxLoad + " blocks is " +
+			config.MaxTxLoad + "\n" + "Number of transactions between " + strconv.Itoa(startBlock) +
+			" and " + strconv.Itoa(endBlock) + " was " + strconv.Itoa(totalTransactions) + ". Please check the blocks."
+		err := email.SendEmail(emaiMessage)
+		if err != nil {
+			return err
+		}
 	} else {
-		s.log.Info("Transaction load threshold crossed for these blocks:  ", blocksWithHigherTxLoad)
-		// TODO: send email
+		if len(higherTxLoadBlocks) > 0 {
+			higherTxLoadBlocksBytes, err := json.Marshal(higherTxLoadBlocks)
+			if err != nil {
+				return err
+			}
+			emaiMessage := "Alert ! \n Blockchain has reached its threshold for tx/block! \n\n" +
+				"Maximum transaction threshold per block is " + config.MaxTxPerBlock + "\n" +
+				"These blocks has passed the threshold of transaction count per block : \n" +
+				"Format : {Block Number:Transaction count} \n" + string(higherTxLoadBlocksBytes)
+			err = email.SendEmail(emaiMessage)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	s.lastCheckedBlockForTxLoad = endBlock

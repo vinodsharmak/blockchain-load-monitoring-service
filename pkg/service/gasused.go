@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
+	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/email"
 )
 
 // Check if we have reached the max gas used and trigger email alerts
@@ -31,7 +32,16 @@ func (s *Service) checkForMaxGasUsed(startBlock int, endBlock int) error {
 	}
 	if gasUsedLimitReached {
 		s.log.Infof("Gas used per block from %v to %v is higher than the set threshold of %v, please check the blockchain", startBlock, endBlock, maxGasUsedPerBlock)
-		// TODO: Send email
+
+		emaiMessage := "Alert ! \n Blockchain has reached its threshold for gas limit for range of blocks ! \n\n" +
+			"Gas used from " + strconv.Itoa(startBlock) + " to " + strconv.Itoa(endBlock) +
+			" has reached the Maximum gas used per block threshold of " + config.MaxGasUsedPerBlock +
+			". Please check the blockchain. "
+
+		err := email.SendEmail(emaiMessage)
+		if err != nil {
+			return err
+		}
 	}
 	s.lastCheckedBlockForGasUSed = endBlock
 	return nil
@@ -65,6 +75,6 @@ func (s *Service) checkGasUsed() error {
 			return err
 		}
 	}
-	s.log.Info("CheckForMaxGasUsed end")
+	s.log.Info("ChecGasUsed end")
 	return nil
 }
