@@ -1,6 +1,9 @@
 package service
 
 import (
+	"fmt"
+	"time"
+
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/model"
 	"github.com/antigloss/go/logger"
@@ -29,35 +32,39 @@ func (s *Service) Configure() error {
 	return nil
 }
 
-func (s *Service) StartTxCountMonitoring() error {
-	err := s.txPoolStuck()
-	if err != nil {
-		return err
+func (s *Service) StartBlockchainMonitoringService() error {
+	s.log.Info("starting blockchain monitoring service")
+
+	for {
+		//check transaction load on blockchain
+		err := s.checkTxLoad()
+		if err != nil {
+			return fmt.Errorf("checkTxLoad: %s", err)
+		}
+
+		time.Sleep(time.Second * time.Duration(config.TimeIntervalForSubService))
+
+		//check block gaslimit usage
+		err = s.checkGasUsed()
+		if err != nil {
+			return fmt.Errorf("checkGasUsed: %s", err)
+
+		}
+
+		time.Sleep(time.Second * time.Duration(config.TimeIntervalForSubService))
+
+		//check pending and queued txpool count
+		err = s.checkPendingAndQueuedTxCount()
+		if err != nil {
+			return fmt.Errorf("checkPendingAndQueuedTxCount: %s", err)
+		}
+
+		time.Sleep(time.Second * time.Duration(config.TimeIntervalForSubService))
+
+		//check if tx stuck in txpool in pending and queued
+		err = s.txPoolStuck()
+		if err != nil {
+			return fmt.Errorf("txPoolStuck: %s", err)
+		}
 	}
-
-	// time.Sleep(time.Second * 10)
-
-	err = s.checkTxLoad()
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (s *Service) StartPendingAndQueuedTxMonitoring() error {
-	err := s.CheckPendingAndQueuedTxCount()
-	if err != nil {
-		return err
-	}
-	return nil
-
-}
-
-func (s *Service) StartGasUsedtMonitoring() error {
-	err := s.checkGasUsed()
-	if err != nil {
-		return err
-	}
-	return nil
 }

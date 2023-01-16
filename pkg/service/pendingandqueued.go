@@ -11,7 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
-func (s *Service) CheckPendingAndQueuedTxCount() error {
+func (s *Service) checkPendingAndQueuedTxCount() error {
 	s.log.Info("CheckPendingAndQueuedTxCount start")
 
 	maxTxPending, err := strconv.Atoi(config.MaxTxPending)

@@ -19,7 +19,7 @@ var (
 	ChainID                      string
 	MaxGasUsedPerBlock           string
 	BlockDifferenceForMaxGasUsed string
-	TimeIntervalForSubService    string
+	TimeIntervalForSubService    int
 	TxpoolTimeLimit              int
 )
 
@@ -49,35 +49,35 @@ func ReadConfig() error {
 		return errors.New("blockchian URL cannot be empty")
 	}
 	BlockchainURL = blockchainURL
-	Logger.Infof("BlockchainURL: %v", blockchainURL)
+	Logger.Infof("BlockchainURL: %v", BlockchainURL)
 
 	maxTxLoad, exists := os.LookupEnv("MAX_TX_LOAD")
 	if !exists || maxTxLoad == "" {
 		return errors.New("MAX_TX_LOAD cannot be empty")
 	}
 	MaxTxLoad = maxTxLoad
-	Logger.Infof("MaxTxLoad: %v", maxTxLoad)
+	Logger.Infof("MaxTxLoad: %v", MaxTxLoad)
 
 	blockDifferenceForMaxTxLoad, exists := os.LookupEnv("BLOCK_DIFFERENCE_FOR_MAX_TX_LOAD")
 	if !exists || blockDifferenceForMaxTxLoad == "" {
 		return errors.New("BLOCK_DIFFERENCE_FOR_MAX_TX_LOAD cannot be empty")
 	}
 	BlockDifferenceForMaxTxLoad = blockDifferenceForMaxTxLoad
-	Logger.Infof("BlockDifferenceForMaxTxLoad: %v", blockDifferenceForMaxTxLoad)
+	Logger.Infof("BlockDifferenceForMaxTxLoad: %v", BlockDifferenceForMaxTxLoad)
 
 	maxTxPerBlock, exists := os.LookupEnv("MAX_TX_PER_BLOCK")
 	if !exists || maxTxPerBlock == "" {
 		return errors.New("MAX_TX_PER_BLOCK cannot be empty")
 	}
 	MaxTxPerBlock = maxTxPerBlock
-	Logger.Infof("MaxTxPerBlock: %v", maxTxPerBlock)
+	Logger.Infof("MaxTxPerBlock: %v", MaxTxPerBlock)
 
 	maxTxPending, exists := os.LookupEnv("MAX_TX_PENDING")
 	if !exists || maxTxPending == "" {
 		return errors.New("MAX_TX_PENDING cannot be empty")
 	}
 	MaxTxPending = maxTxPending
-	Logger.Infof("MaxTxPending: %v", maxTxPending)
+	Logger.Infof("MaxTxPending: %v", MaxTxPending)
 
 	chainID, exists := os.LookupEnv("CHAIN_ID")
 	if !exists || chainID == "" {
@@ -85,26 +85,30 @@ func ReadConfig() error {
 	}
 	ChainID = chainID
 	Logger.Infof("ChainID: %v", ChainID)
+
 	maxGasUsedPerBlock, exists := os.LookupEnv("MAX_GAS_USED_PER_BLOCK")
 	if !exists || maxGasUsedPerBlock == "" {
 		return errors.New("MAX_GAS_USED_PER_BLOCK cannot be empty")
 	}
 	MaxGasUsedPerBlock = maxGasUsedPerBlock
-	Logger.Infof("MaxGasUsedPerBlock: %v", maxGasUsedPerBlock)
+	Logger.Infof("MaxGasUsedPerBlock: %v", MaxGasUsedPerBlock)
 
 	blockDifferenceForMaxGasUsed, exists := os.LookupEnv("BLOCK_DIFFERENCE_FOR_MAX_GAS_USED")
 	if !exists || blockDifferenceForMaxGasUsed == "" {
 		return errors.New("BLOCK_DIFFERENCE_FOR_MAX_GAS_USED cannot be empty")
 	}
 	BlockDifferenceForMaxGasUsed = blockDifferenceForMaxGasUsed
-	Logger.Infof("BlockDifferenceForMaxGasUsed: %v", blockDifferenceForMaxGasUsed)
+	Logger.Infof("BlockDifferenceForMaxGasUsed: %v", BlockDifferenceForMaxGasUsed)
 
 	timeIntervalForSubService, exists := os.LookupEnv("TIME_INTERVAL_FOR_SUB_SERVICES")
 	if !exists || timeIntervalForSubService == "" {
 		return errors.New("TIME_INTERVAL_FOR_SUB_SERVICES cannot be empty")
 	}
-	TimeIntervalForSubService = timeIntervalForSubService
-	Logger.Infof("TimeIntervalForSubService: %v", timeIntervalForSubService)
+	TimeIntervalForSubService, err = strconv.Atoi(timeIntervalForSubService)
+	if err != nil {
+		return errors.New("unable to parse timeIntervalForSubService from string to integer, invalid format")
+	}
+	Logger.Infof("TimeIntervalForSubService: %v", TimeIntervalForSubService)
 
 	txpoolTimeLimit, exists := os.LookupEnv("TXPOOL_TIME_LIMIT_IN_SECONDS")
 	if !exists || chainID == "" {
