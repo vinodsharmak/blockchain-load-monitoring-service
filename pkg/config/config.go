@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"os"
+	"strconv"
 
 	"github.com/antigloss/go/logger"
 	"github.com/joho/godotenv"
@@ -14,8 +15,9 @@ var (
 	MaxTxLoad                   string
 	BlockDifferenceForMaxTxLoad string
 	MaxTxPerBlock               string
-	MaxTxPending                string
 	ChainID                     string
+	TxpoolTimeLimit             int
+	MaxTxPending                string
 )
 
 // ReadConfig reads config file into the Config struct and returns it
@@ -80,6 +82,16 @@ func ReadConfig() error {
 	}
 	ChainID = chainID
 	Logger.Infof("ChainID: %v", ChainID)
+
+	txpoolTimeLimit, exists := os.LookupEnv("TXPOOL_TIME_LIMIT_IN_SECONDS")
+	if !exists || chainID == "" {
+		return errors.New("TXPOOL_TIME_LIMIT_IN_SECONDS cannot be empty")
+	}
+	TxpoolTimeLimit, err = strconv.Atoi(txpoolTimeLimit)
+	if err != nil {
+		return errors.New("unable to parse txpoolTimeLimit from string to integer, invalid format")
+	}
+	Logger.Infof("TxpoolTimeLimit: %v", TxpoolTimeLimit)
 
 	return nil
 

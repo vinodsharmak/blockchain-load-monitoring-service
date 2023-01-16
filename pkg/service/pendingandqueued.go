@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
@@ -78,10 +79,10 @@ func getPendingTransactionDetails() ([]model.TxBody, error) {
 	pending := txpool_content.Result.Pending
 	for fromAddress, transactions := range pending {
 		var transaction model.TxBody
-		transaction.From = fromAddress.String()
+		transaction.From = fromAddress
 		for nonce, txBody := range transactions {
 			transaction.To = txBody.To
-			transaction.Nonce = strconv.Itoa(nonce)
+			transaction.Nonce = fmt.Sprintf("%v", nonce)
 			transaction.Gas = txBody.Gas
 			transaction.Hash = txBody.Hash
 			pendingTransactions = append(pendingTransactions, transaction)
@@ -99,10 +100,10 @@ func getQueuedTransactionDetails() ([]model.TxBody, error) {
 	queued := txpool_content.Result.Queued
 	for fromAddress, transactions := range queued {
 		var transaction model.TxBody
-		transaction.From = fromAddress.String()
+		transaction.From = fromAddress
 		for nonce, txBody := range transactions {
 			transaction.To = txBody.To
-			transaction.Nonce = strconv.Itoa(nonce)
+			transaction.Nonce = fmt.Sprintf("%v", nonce)
 			transaction.Gas = txBody.Gas
 			transaction.Hash = txBody.Hash
 			queuedTransactions = append(queuedTransactions, transaction)
