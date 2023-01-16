@@ -19,12 +19,14 @@ var service *ses.SES
 // Creating session for using service
 func Config() error {
 	log = config.Logger
+
 	session, err := session.NewSession(&aws.Config{Region: aws.String("us-east-1")})
 	if err != nil {
-		log.Error("Error while creating aws session %s for email", err)
 		return err
 	}
+
 	service = ses.New(session)
+
 	return nil
 }
 
@@ -36,9 +38,9 @@ func SendEmail(message string) error {
 	receivers := strings.Split(config.ReceiverEmails, ",")
 	subject := "Blockchain Monitoring Service Alert !"
 	charSet := constants.EmailCharSet
+
 	//validate data
 	if message == "" {
-		log.Error("Message cannot not be blank")
 		return errors.New("message cannot not be blank")
 	}
 
@@ -78,14 +80,11 @@ func SendEmail(message string) error {
 			default:
 				log.Infof(err1.Error())
 			}
-			log.Infof("Error while sending email : ", err1.Error())
 			return err1
 		} else {
-			log.Infof("Error while sending email :", err1.Error())
 			return err
 		}
 	}
-
 	log.Info("Email sent with message ID : ", result.MessageId)
 	log.Info("Email service end")
 	return err

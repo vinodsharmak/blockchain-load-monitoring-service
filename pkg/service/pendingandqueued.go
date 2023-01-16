@@ -53,7 +53,7 @@ func (s *Service) checkPendingAndQueuedTxCount() error {
 			return err
 		}
 		queuedTransactionsString := string(queuedTransactionsBytes)
-		emailMessage := "Alert from pending and queued transaction count check ! \n" +
+		emailMessage := "Alert ! \n from pending and queued transaction count check ! \n" +
 			"Please find the transaction pool details below : \n "
 		if len(pendingTransactionDetails) >= maxTxPending {
 			emailMessage = emailMessage + "Pending transaction count is higher than the threshold of " +
@@ -67,7 +67,6 @@ func (s *Service) checkPendingAndQueuedTxCount() error {
 		s.log.Infof(emailMessage)
 		err = email.SendEmail(emailMessage)
 		if err != nil {
-			s.log.Info("Error while sending Email")
 			return err
 		}
 	}
