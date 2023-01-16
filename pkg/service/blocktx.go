@@ -10,8 +10,6 @@ import (
 
 // Check if we have reached the max tx load and trigger email alerts
 func (s *Service) checkForMaxTxLoad(startBlock int, endBlock int) error {
-	s.log.Info("CheckForMaxTxLoad start")
-
 	maxTxLoad, err := strconv.Atoi(config.MaxTxLoad)
 	if err != nil {
 		return err
@@ -45,13 +43,13 @@ func (s *Service) checkForMaxTxLoad(startBlock int, endBlock int) error {
 		// TODO: send email
 	}
 
-	s.lastCheckedBlock = endBlock
-	s.log.Info("CheckForMaxTxLoad end")
+	s.lastCheckedBlockForTxLoad = endBlock
 	return nil
 }
 
 // check the current block and set the block range for tx load test
 func (s *Service) checkTxLoad() error {
+	s.log.Info("checkTxLoad start")
 	blockDifferenceForMaxTxLoad, err := strconv.Atoi(config.BlockDifferenceForMaxTxLoad)
 	if err != nil {
 		return err
@@ -63,20 +61,20 @@ func (s *Service) checkTxLoad() error {
 	}
 
 	expectedBlock := 0
-	if s.lastCheckedBlock == 0 {
+	if s.lastCheckedBlockForTxLoad == 0 {
 		expectedBlock = int(currentBlock) - blockDifferenceForMaxTxLoad
-		s.lastCheckedBlock = expectedBlock
+		s.lastCheckedBlockForTxLoad = expectedBlock
 	} else {
-		expectedBlock = s.lastCheckedBlock + blockDifferenceForMaxTxLoad
+		expectedBlock = s.lastCheckedBlockForTxLoad + blockDifferenceForMaxTxLoad
 	}
 
 	if int(currentBlock) >= expectedBlock {
-		endBlock := s.lastCheckedBlock + blockDifferenceForMaxTxLoad - 1
-		err := s.checkForMaxTxLoad(s.lastCheckedBlock, endBlock)
+		endBlock := s.lastCheckedBlockForTxLoad + blockDifferenceForMaxTxLoad - 1
+		err := s.checkForMaxTxLoad(s.lastCheckedBlockForTxLoad, endBlock)
 		if err != nil {
 			return err
 		}
 	}
-
+	s.log.Info("CheckTxLoad end")
 	return nil
 }

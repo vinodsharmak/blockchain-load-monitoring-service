@@ -9,11 +9,12 @@ import (
 )
 
 type Service struct {
-	ethClient        *ethclient.Client
-	lastCheckedBlock int
-	log              *logger.Logger
-	PendingTx        map[common.Address]map[uint64]model.TxBody
-	QueuedTx         map[common.Address]map[uint64]model.TxBody
+	ethClient                  *ethclient.Client
+	lastCheckedBlockForTxLoad  int
+	lastCheckedBlockForGasUSed int
+	log                        *logger.Logger
+	PendingTx                  map[common.Address]map[uint64]model.TxBody
+	QueuedTx                   map[common.Address]map[uint64]model.TxBody
 }
 
 func (s *Service) Configure() error {
@@ -46,6 +47,15 @@ func (s *Service) StartTxCountMonitoring() error {
 
 func (s *Service) StartPendingAndQueuedTxMonitoring() error {
 	err := s.CheckPendingAndQueuedTxCount()
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
+
+func (s *Service) StartGasUsedtMonitoring() error {
+	err := s.checkGasUsed()
 	if err != nil {
 		return err
 	}
