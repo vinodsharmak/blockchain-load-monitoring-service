@@ -1,7 +1,7 @@
 version: '3'
 services:
   blockchain-load-monitoring-service:
-    container_name: blockchain-load-monitoring-service
+    container_name: ${NETWORK}-blockchain-load-monitoring-service:01
     build:
       context: .
       dockerfile: Dockerfile

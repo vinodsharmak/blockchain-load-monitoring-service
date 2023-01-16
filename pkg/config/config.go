@@ -23,6 +23,7 @@ var (
 	BlockDifferenceForMaxGasUsed string
 	TimeIntervalForSubService    int
 	TxpoolTimeLimit              int
+	Network                      string
 )
 
 // ReadConfig reads config file into the Config struct and returns it
@@ -52,6 +53,18 @@ func ReadConfig() error {
 	}
 	BlockchainURL = blockchainURL
 	Logger.Infof("BlockchainURL: %v", BlockchainURL)
+
+	network, exists := os.LookupEnv("NETWORK")
+	if !exists || network == "" {
+		return errors.New("network value cannot be empty")
+	}
+	if network == "testnet" && blockchainURL != "https://testnet.gather.network" {
+		return errors.New("network not consistent with URL")
+	}
+	if network == "mainnet" && blockchainURL != "https://mainnet.gather.network" {
+		return errors.New("network not consistent with URL")
+	}
+	Network = network
 
 	maxTxLoad, exists := os.LookupEnv("MAX_TX_LOAD")
 	if !exists || maxTxLoad == "" {
