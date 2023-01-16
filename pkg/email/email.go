@@ -35,14 +35,14 @@ func SendEmail(message string) error {
 
 	sender := config.SenderEmail
 	receivers := strings.Split(config.ReceiverEmails, ",")
-	subject := "Blockchain Monitoring Service Alert !"
+	subject := "Gather " + strings.ToUpper(config.Network) + " Monitoring Service Alert !"
 	charSet := constants.EmailCharSet
 
 	//validate data
 	if message == "" {
 		return errors.New("message cannot not be blank")
 	}
-
+	emailMessage := "This is an alert from Gather " + config.Network + " load monitoring service.\n" + message
 	// Preparing input for SendEmail Function
 	input := &ses.SendEmailInput{
 		Destination: &ses.Destination{
@@ -53,7 +53,7 @@ func SendEmail(message string) error {
 			Body: &ses.Body{
 				Text: &ses.Content{
 					Charset: aws.String(charSet),
-					Data:    aws.String(message),
+					Data:    aws.String(emailMessage),
 				},
 			},
 			Subject: &ses.Content{
