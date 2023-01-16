@@ -52,7 +52,6 @@ Thumbs.db
 #enviroment variables 
 .env 
 
-blockchain-load-monitoring-service
 logs_testnet/
 logs_mainnet/
 logs_devnet/
