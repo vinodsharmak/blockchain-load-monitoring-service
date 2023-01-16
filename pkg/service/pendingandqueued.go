@@ -49,14 +49,14 @@ func (s *Service) checkPendingAndQueuedTxCount() error {
 			return err
 		}
 
-		emailMessage := "Alert ! \nfrom pending and queued transaction count check ! \n" +
-			"Please find the transaction pool details below : \n"
+		emailMessage := "Alert ! \nThreshold reached for transaction pool! \n" +
+			"Please find the transactions detail below : \n"
 		if txPoolCountMail.PendingCount >= maxTxPending {
-			emailMessage = emailMessage + "Pending transaction count is higher than the threshold of " +
+			emailMessage = emailMessage + "Number of pending transactions is higher than the threshold of  " +
 				config.MaxTxPending + "!\n"
 		}
 		if txPoolCountMail.QueuedCount > 0 {
-			emailMessage = emailMessage + "Blockchain have queued transactions in the pool !\n"
+			emailMessage = emailMessage + "Blockchain have queued transactions in the pool!\n"
 
 		}
 		txpoolContentString, err := helpers.PrepareEmailBodyForTxPoolContent(txPoolCountMail)

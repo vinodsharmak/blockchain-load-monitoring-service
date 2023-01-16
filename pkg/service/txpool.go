@@ -46,7 +46,7 @@ func (s *Service) txPoolStuck() error {
 
 	s.log.Info("txPoolStuck result:\n", mailContentString)
 	if txPoolContentStuckMail.PendingCount > 0 || txPoolContentStuckMail.QueuedCount > 0 {
-		emailMessage := "Alert !\nTransactions stuck inside the transaction pool, please find the details below :\n" + mailContentString
+		emailMessage := "Alert !\nTransactions are stuck inside the transaction pool (pending/queued), please find the details below :\n" + mailContentString
 		err = email.SendEmail(emailMessage)
 		if err != nil {
 			return err

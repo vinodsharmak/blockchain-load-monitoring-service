@@ -66,7 +66,7 @@ func (s *Service) checkForMaxTxLoad(startBlock int, endBlock int) error {
 			return err
 		}
 		if int(transactionCount) >= maxTxPerBlock {
-			s.log.Infof("Transaction in %v was %v,which is higher than the tx/block threshold of %v Please check the blockchain.", i, transactionCount, maxTxPerBlock)
+			s.log.Infof("Transaction in %v was %v,which is higher than the tx/block threshold of %v", i, transactionCount, maxTxPerBlock)
 			higherTxLoadBlocks[i] = transactionCount
 		}
 		totalTransactions = totalTransactions + int(transactionCount)
@@ -74,11 +74,11 @@ func (s *Service) checkForMaxTxLoad(startBlock int, endBlock int) error {
 	s.log.Infof("Total number of transaction between %v and %v is %v.", startBlock, endBlock, totalTransactions)
 
 	if totalTransactions >= maxTxLoad {
-		s.log.Infof("Transaction load is higher than the %v for %v blocks, Please check the blockchain.", maxTxLoad, config.BlockDifferenceForMaxTxLoad)
-		emaiMessage := "Alert !\nBlockchain has reached its threshold for tx/block for range of blocks ! \n\n" +
+		s.log.Infof("Transaction load is higher than the %v for %v blocks.", maxTxLoad, config.BlockDifferenceForMaxTxLoad)
+		emaiMessage := "Alert !\nThreshold reached for total transactions within a block range! \n\n" +
 			"Maximum threshold per " + config.BlockDifferenceForMaxTxLoad + " blocks is " +
 			config.MaxTxLoad + "\n" + "Number of transactions between " + strconv.Itoa(startBlock) +
-			" and " + strconv.Itoa(endBlock) + " was " + strconv.Itoa(totalTransactions) + ". Please check the blocks."
+			" and " + strconv.Itoa(endBlock) + " was " + strconv.Itoa(totalTransactions)
 		err := email.SendEmail(emaiMessage)
 		if err != nil {
 			return err
@@ -89,10 +89,10 @@ func (s *Service) checkForMaxTxLoad(startBlock int, endBlock int) error {
 			if err != nil {
 				return err
 			}
-			emaiMessage := "Alert ! \n Blockchain has reached its threshold for tx/block! \n\n" +
-				"Maximum transaction threshold per block is " + config.MaxTxPerBlock + "\n" +
-				"These blocks has passed the threshold of transaction count per block : \n" +
-				"Format : {Block Number:Transaction count} \n" + string(higherTxLoadBlocksBytes)
+			emaiMessage := "Alert ! \n Threshold reached for transactions per block! \n\n" +
+				"Threshold of transactions per block is " + config.MaxTxPerBlock + "\n" +
+				"These blocks has passed the threshold of transactions count per block : \n" +
+				"Given detail is in format : {Block Number: Transactions count} \n" + string(higherTxLoadBlocksBytes)
 			err = email.SendEmail(emaiMessage)
 			if err != nil {
 				return err

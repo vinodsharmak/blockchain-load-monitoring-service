@@ -31,12 +31,11 @@ func (s *Service) checkForMaxGasUsed(startBlock int, endBlock int) error {
 		}
 	}
 	if gasUsedLimitReached {
-		s.log.Infof("Gas used per block from %v to %v is higher than the set threshold of %v, please check the blockchain", startBlock, endBlock, maxGasUsedPerBlock)
+		s.log.Infof("Gas used per block from %v to %v is higher than the set threshold of %v.", startBlock, endBlock, maxGasUsedPerBlock)
 
-		emaiMessage := "Alert ! \nBlockchain has reached its threshold for gas limit for range of blocks ! \n\n" +
-			"Gas used from " + strconv.Itoa(startBlock) + " to " + strconv.Itoa(endBlock) +
-			" has reached the Maximum gas used per block threshold of " + config.MaxGasUsedPerBlock +
-			". Please check the blockchain. "
+		emaiMessage := "Alert ! \nThreshold reached for block gas limit utilization! \n\n" +
+			"Gas used from block - " + strconv.Itoa(startBlock) + " to block - " + strconv.Itoa(endBlock) +
+			" has crossed the gas utilization per block threshold of " + config.MaxGasUsedPerBlock
 
 		err := email.SendEmail(emaiMessage)
 		if err != nil {
