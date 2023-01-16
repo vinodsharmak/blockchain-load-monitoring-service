@@ -29,6 +29,11 @@ var (
 // ReadConfig reads config file into the Config struct and returns it
 func ReadConfig() error {
 	var err error
+	network, exists := os.LookupEnv("NETWORK")
+	if !exists || network == "" {
+		return errors.New("network value cannot be empty")
+	}
+
 	Logger, err = logger.New(&logger.Config{
 		LogDir:          "./logs_" + Network,
 		LogFileMaxSize:  50,
@@ -54,10 +59,6 @@ func ReadConfig() error {
 	BlockchainURL = blockchainURL
 	Logger.Infof("BlockchainURL: %v", BlockchainURL)
 
-	network, exists := os.LookupEnv("NETWORK")
-	if !exists || network == "" {
-		return errors.New("network value cannot be empty")
-	}
 	if network == "testnet" && blockchainURL != "https://testnet.gather.network" {
 		return errors.New("network not consistent with URL")
 	}
