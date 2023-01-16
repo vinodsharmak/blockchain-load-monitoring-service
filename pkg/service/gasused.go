@@ -62,15 +62,14 @@ func (s *Service) checkGasUsed() error {
 
 	expectedBlock := 0
 	if s.lastCheckedBlockForGasUSed == 0 {
-		expectedBlock = int(currentBlock) - blockDifferenceForMaxGasUsed
-		s.lastCheckedBlockForGasUSed = expectedBlock
+		expectedBlock = int(currentBlock)
+		s.lastCheckedBlockForGasUSed = expectedBlock - blockDifferenceForMaxGasUsed
 	} else {
 		expectedBlock = s.lastCheckedBlockForGasUSed + blockDifferenceForMaxGasUsed
 	}
 
 	if int(currentBlock) >= expectedBlock {
-		endBlock := s.lastCheckedBlockForGasUSed + blockDifferenceForMaxGasUsed
-		err := s.checkForMaxGasUsed(s.lastCheckedBlockForGasUSed+1, endBlock)
+		err := s.checkForMaxGasUsed(s.lastCheckedBlockForGasUSed+1, expectedBlock)
 		if err != nil {
 			return err
 		}

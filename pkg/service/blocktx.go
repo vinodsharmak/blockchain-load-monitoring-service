@@ -25,15 +25,14 @@ func (s *Service) checkTxLoad() error {
 
 	expectedBlock := 0
 	if s.lastCheckedBlockForTxLoad == 0 {
-		expectedBlock = int(currentBlock) - blockDifferenceForMaxTxLoad
-		s.lastCheckedBlockForTxLoad = expectedBlock
+		expectedBlock = int(currentBlock)
+		s.lastCheckedBlockForTxLoad = expectedBlock - blockDifferenceForMaxTxLoad
 	} else {
 		expectedBlock = s.lastCheckedBlockForTxLoad + blockDifferenceForMaxTxLoad
 	}
 
 	if int(currentBlock) >= expectedBlock {
-		endBlock := s.lastCheckedBlockForTxLoad + blockDifferenceForMaxTxLoad - 1
-		err := s.checkForMaxTxLoad(s.lastCheckedBlockForTxLoad, endBlock)
+		err := s.checkForMaxTxLoad(s.lastCheckedBlockForTxLoad+1, expectedBlock)
 		if err != nil {
 			return err
 		}
