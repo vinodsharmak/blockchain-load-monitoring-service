@@ -13,6 +13,7 @@ import (
 var txPoolContentStuckMail model.TxPoolContentStuckMail
 
 func (s *Service) txPoolStuck() error {
+	s.log.Infof("txPoolStuck started")
 	txPoolContentStuckMail = model.TxPoolContentStuckMail{}
 	res, err := helpers.TxPoolContent()
 	if err != nil {
@@ -20,6 +21,7 @@ func (s *Service) txPoolStuck() error {
 	}
 
 	//pending
+	s.log.Infof("txPoolStuck checking pending")
 	if len(res.Result.Pending) != 0 {
 		s.removeConfirmedPending(res.Result.Pending)
 		s.updatePendingContent(res.Result.Pending)
@@ -27,6 +29,7 @@ func (s *Service) txPoolStuck() error {
 		s.PendingTx = make(map[common.Address]map[uint64]model.TxBody)
 	}
 
+	s.log.Infof("txPoolStuck checking queued")
 	//queued
 	if len(res.Result.Queued) != 0 {
 		s.removeConfirmedQueued(res.Result.Queued)
@@ -39,13 +42,15 @@ func (s *Service) txPoolStuck() error {
 	if err != nil {
 		return err
 	}
-	s.log.Info("TXPOOL STUCK STATUS: \n", mailContentString)
 
+	s.log.Info("txPoolStuck result:\n", mailContentString)
 	err = email.SendEmail(mailContentString)
 	if err != nil {
 		s.log.Info("Error while sending Email")
 		return err
 	}
+	s.log.Infof("txPoolStuck end")
+
 	return nil
 }
 
@@ -56,6 +61,7 @@ func (s *Service) updatePendingContent(pending map[common.Address]map[uint64]mod
 				if s.checkIfNonceAvailableInPending(sender, nonce) {
 					timeElapsedInSeconds := time.Now().Unix() - s.PendingTx[sender][nonce].FoundAtEpochTime
 					if timeElapsedInSeconds >= int64(config.TxpoolTimeLimit) {
+						s.log.Infof("found tx stuck in pending: %s", s.PendingTx[sender][nonce])
 						txPoolContentStuckMail.PendingCount++
 						txPoolContentStuckMail.PendingContent = append(txPoolContentStuckMail.PendingContent, s.PendingTx[sender][nonce])
 					}
@@ -82,6 +88,7 @@ func (s *Service) updateQueuedContent(queued map[common.Address]map[uint64]model
 				if s.checkIfNonceAvailableInQueued(sender, nonce) {
 					timeElapsedInSeconds := time.Now().Unix() - s.PendingTx[sender][nonce].FoundAtEpochTime
 					if timeElapsedInSeconds >= int64(config.TxpoolTimeLimit) {
+						s.log.Infof("found tx stuck in queued: %s", s.QueuedTx[sender][nonce])
 						txPoolContentStuckMail.QueuedCount++
 						txPoolContentStuckMail.QueuedContent = append(txPoolContentStuckMail.QueuedContent, s.QueuedTx[sender][nonce])
 					}
@@ -107,7 +114,7 @@ func (s *Service) removeConfirmedPending(pending map[common.Address]map[uint64]m
 		if !ok {
 			delete(s.PendingTx, sender)
 		} else {
-			for nonce, _ := range transactions {
+			for nonce := range transactions {
 				_, ok := pending[sender][nonce]
 				if !ok {
 					delete(s.PendingTx[sender], nonce)
@@ -123,7 +130,7 @@ func (s *Service) removeConfirmedQueued(queued map[common.Address]map[uint64]mod
 		if !ok {
 			delete(s.QueuedTx, sender)
 		} else {
-			for nonce, _ := range transactions {
+			for nonce := range transactions {
 				_, ok := queued[sender][nonce]
 				if !ok {
 					delete(s.QueuedTx[sender], nonce)
