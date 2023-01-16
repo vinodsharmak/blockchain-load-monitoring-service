@@ -32,7 +32,7 @@ func (s *Service) Configure() error {
 	return nil
 }
 
-func (s *Service) StartBlockchainMonitoringService() error {
+func (s *Service) BlockchainMonitoringService() error {
 	s.log.Info("starting blockchain monitoring service")
 
 	for {

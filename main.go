@@ -10,7 +10,7 @@ import (
 func main() {
 	err := config.ReadConfig()
 	if err != nil {
-		logrus.Errorln("Error while configuring blockchian load monitoring service : ", err)
+		logrus.Errorln("read config: ", err)
 		return
 	}
 
@@ -25,11 +25,11 @@ func main() {
 	s := service.Service{}
 	err = s.Configure()
 	if err != nil {
-		log.Error("configure: ", err)
+		log.Errorf("configure %v: ", err)
 	}
 
-	err = s.StartBlockchainMonitoringService()
+	err = s.BlockchainMonitoringService()
 	if err != nil {
-		log.Errorf("Error while blockchain monitoring", err.Error())
+		log.Errorf("Blockchain Monitoring Service: %s ", err.Error())
 	}
 }
