@@ -10,7 +10,6 @@ import (
 
 // Check if we have reached the max gas used and trigger email alerts
 func (s *Service) checkForMaxGasUsed(startBlock int, endBlock int) error {
-	s.log.Info("CheckForMaxGasUsed end")
 	maxGasUsedPerBlock, err := strconv.Atoi(config.MaxGasUsedPerBlock)
 	if err != nil {
 		return err
@@ -35,12 +34,12 @@ func (s *Service) checkForMaxGasUsed(startBlock int, endBlock int) error {
 		// TODO: Send email
 	}
 	s.lastCheckedBlockForGasUSed = endBlock
-	s.log.Info("CheckForMaxGasUsed end")
 	return nil
 }
 
 // check the current block and set the block range for gas used
 func (s *Service) checkGasUsed() error {
+	s.log.Info("checkGasUsed start")
 	blockDifferenceForMaxGasUsed, err := strconv.Atoi(config.BlockDifferenceForMaxGasUsed)
 	if err != nil {
 		return err
@@ -66,5 +65,6 @@ func (s *Service) checkGasUsed() error {
 			return err
 		}
 	}
+	s.log.Info("CheckForMaxGasUsed end")
 	return nil
 }
