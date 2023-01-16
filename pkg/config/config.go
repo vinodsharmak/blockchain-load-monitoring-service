@@ -48,7 +48,9 @@ func ReadConfig() error {
 	if err != nil {
 		return errors.New("unable to intialize logger")
 	}
-	err = godotenv.Load(".env")
+	
+	envFile := network+".env"
+	err = godotenv.Load(envFile)
 	if err != nil {
 		return errors.New("unable to load .env file")
 	}
@@ -61,9 +63,6 @@ func ReadConfig() error {
 	Logger.Infof("BlockchainURL: %v", BlockchainURL)
 
 	if network == "testnet" && blockchainURL != "https://testnet.gather.network" {
-		return errors.New("network not consistent with URL")
-	}
-	if network == "mainnet" && blockchainURL != "https://mainnet.gather.network" {
 		return errors.New("network not consistent with URL")
 	}
 
