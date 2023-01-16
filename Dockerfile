@@ -16,4 +16,4 @@ COPY . ./
 
 RUN make build
 
-CMD ["./blockchain-load-monitoring-service"]
+CMD ["./bin/blockchain-load-monitoring-service"]
