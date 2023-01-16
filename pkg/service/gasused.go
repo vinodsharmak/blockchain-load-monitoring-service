@@ -73,6 +73,6 @@ func (s *Service) checkGasUsed() error {
 			return err
 		}
 	}
-	s.log.Info("ChecGasUsed end")
+	s.log.Info("CheckGasUsed end")
 	return nil
 }
