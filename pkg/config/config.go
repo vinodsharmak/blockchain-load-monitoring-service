@@ -33,6 +33,7 @@ func ReadConfig() error {
 	if !exists || network == "" {
 		return errors.New("network value cannot be empty")
 	}
+	Network = network
 
 	Logger, err = logger.New(&logger.Config{
 		LogDir:          "./logs_" + Network,
@@ -65,7 +66,6 @@ func ReadConfig() error {
 	if network == "mainnet" && blockchainURL != "https://mainnet.gather.network" {
 		return errors.New("network not consistent with URL")
 	}
-	Network = network
 
 	maxTxLoad, exists := os.LookupEnv("MAX_TX_LOAD")
 	if !exists || maxTxLoad == "" {
