@@ -1,7 +1,6 @@
 package main
 
 import (
-	"strconv"
 	"time"
 
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
@@ -18,6 +17,7 @@ func main() {
 
 	log := config.Logger
 
+	// log.Info("Blockchain monitoring start")
 	log.Info("Blockchain monitoring start")
 
 	s := service.Service{}
@@ -25,26 +25,32 @@ func main() {
 	if err != nil {
 		log.Error("Error while configuring the sub-services : ", err)
 	}
-
-	timeInterval, err := strconv.Atoi(config.TimeIntervalForSubService)
-	if err != nil {
-		log.Error("Error while string to integer conversion of timeInterval : ", err)
-	}
 	for {
 		err = s.StartTxCountMonitoring()
 		if err != nil {
-			log.Error("Error while pending and queued tx monitoring : ", err)
+			log.Errorf("Error while blockchain monitoring", err.Error())
 		}
-		time.Sleep(time.Duration(timeInterval) * time.Second)
-		err = s.StartPendingAndQueuedTxMonitoring()
-		if err != nil {
-			log.Error("Error while pending and queued tx monitoring : ", err)
-		}
-		time.Sleep(time.Duration(timeInterval) * time.Second)
-		err = s.StartGasUsedtMonitoring()
-		if err != nil {
-			log.Errorf("Error while gas used monitoring", err.Error())
-		}
-		time.Sleep(time.Duration(timeInterval) * time.Second)
+		time.Sleep(time.Second * 10)
 	}
+
+	// result, err := helpers.TxPoolContent()
+	// if err != nil {
+	// 	log.Errorf("error in txpool Content: %w", err)
+	// }
+
+	// bytes, err := json.MarshalIndent(result, " ", " ")
+	// if err != nil {
+	// 	log.Errorf("error in marshal indent: %w", err)
+	// }
+	// fmt.Println("RESPONSE: ", string(bytes))
+
+	err = s.StartPendingAndQueuedTxMonitoring()
+	if err != nil {
+		log.Error("Error while pending and queued tx monitoring : ", err)
+
+	err = s.StartGasUsedtMonitoring()
+	if err != nil {
+		log.Errorf("Error while gas used monitoring", err.Error())
+	}
+	
 }
