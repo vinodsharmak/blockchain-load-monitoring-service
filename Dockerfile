@@ -14,6 +14,6 @@ RUN go mod download
 
 COPY . ./
 
-RUN make build
+RUN go build -o ./bin/blockchain-load-monitoring-service
 
 CMD ["./bin/blockchain-load-monitoring-service"]

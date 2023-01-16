@@ -50,7 +50,7 @@ Thumbs.db
 *.wmv
 
 #enviroment variables 
-.env 
+*.env 
 
 logs_testnet/
 logs_mainnet/
