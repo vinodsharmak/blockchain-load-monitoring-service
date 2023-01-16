@@ -88,7 +88,7 @@ func ReadConfig() error {
 
 	ReceiverEmails, exists = os.LookupEnv("RECEIVER_EMAILS")
 	if !exists || ReceiverEmails == "" {
-		logger.Error("Receiver emails cannot be empty")
+		Logger.Error("Receiver emails cannot be empty")
 	}
 	Logger.Info("Receivers for Email Service ", ReceiverEmails)
 	maxTxPerBlock, exists := os.LookupEnv("MAX_TX_PER_BLOCK")
