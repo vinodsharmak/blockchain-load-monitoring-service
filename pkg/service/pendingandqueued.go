@@ -84,7 +84,7 @@ func getPendingTransactionDetails() error {
 	for _, transactions := range pending {
 		for nonce, txBody := range transactions {
 			txBody.Nonce = strconv.Itoa(int(nonce))
-			txPoolCountMail.PendingContent = append(txPoolContentStuckMail.PendingContent, txBody)
+			txPoolCountMail.PendingContent = append(txPoolCountMail.PendingContent, txBody)
 		}
 	}
 	return err
@@ -99,7 +99,7 @@ func getQueuedTransactionDetails() error {
 	for _, transactions := range queued {
 		for nonce, txBody := range transactions {
 			txBody.Nonce = strconv.Itoa(int(nonce))
-			txPoolCountMail.QueuedContent = append(txPoolContentStuckMail.QueuedContent, txBody)
+			txPoolCountMail.QueuedContent = append(txPoolCountMail.QueuedContent, txBody)
 		}
 	}
 	return err
