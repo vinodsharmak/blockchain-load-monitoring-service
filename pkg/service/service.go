@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
+	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/email"
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/model"
 	"github.com/antigloss/go/logger"
 	"github.com/ethereum/go-ethereum/common"
@@ -40,6 +41,10 @@ func (s *Service) BlockchainMonitoringService() error {
 		//check transaction load on blockchain
 		err := s.checkTxLoad()
 		if err != nil {
+			err = email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
+			if err != nil {
+				return err
+			}
 			return fmt.Errorf("checkTxLoad: %s", err)
 		}
 
@@ -48,6 +53,10 @@ func (s *Service) BlockchainMonitoringService() error {
 		//check block gaslimit usage
 		err = s.checkGasUsed()
 		if err != nil {
+			err = email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
+			if err != nil {
+				return err
+			}
 			return fmt.Errorf("checkGasUsed: %s", err)
 
 		}
@@ -57,6 +66,10 @@ func (s *Service) BlockchainMonitoringService() error {
 		//check pending and queued txpool count
 		err = s.checkPendingAndQueuedTxCount()
 		if err != nil {
+			err = email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
+			if err != nil {
+				return err
+			}
 			return fmt.Errorf("checkPendingAndQueuedTxCount: %s", err)
 		}
 
@@ -65,6 +78,10 @@ func (s *Service) BlockchainMonitoringService() error {
 		//check if tx stuck in txpool in pending and queued
 		err = s.txPoolStuck()
 		if err != nil {
+			err = email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
+			if err != nil {
+				return err
+			}
 			return fmt.Errorf("txPoolStuck: %s", err)
 		}
 
