@@ -24,6 +24,7 @@ var (
 	TimeIntervalForSubService    int
 	TxpoolTimeLimit              int
 	Network                      string
+	EmailFrequency               int
 )
 
 // ReadConfig reads config file into the Config struct and returns it
@@ -48,8 +49,8 @@ func ReadConfig() error {
 	if err != nil {
 		return errors.New("unable to intialize logger")
 	}
-	
-	envFile := network+".env"
+
+	envFile := network + ".env"
 	err = godotenv.Load(envFile)
 	if err != nil {
 		return errors.New("unable to load .env file")
@@ -137,7 +138,7 @@ func ReadConfig() error {
 	Logger.Infof("TimeIntervalForSubService: %v", TimeIntervalForSubService)
 
 	txpoolTimeLimit, exists := os.LookupEnv("TXPOOL_TIME_LIMIT_IN_SECONDS")
-	if !exists || chainID == "" {
+	if !exists || txpoolTimeLimit == "" {
 		return errors.New("TXPOOL_TIME_LIMIT_IN_SECONDS cannot be empty")
 	}
 	TxpoolTimeLimit, err = strconv.Atoi(txpoolTimeLimit)
@@ -145,6 +146,16 @@ func ReadConfig() error {
 		return errors.New("unable to parse txpoolTimeLimit from string to integer, invalid format")
 	}
 	Logger.Infof("TxpoolTimeLimit: %v", TxpoolTimeLimit)
+
+	emailFrequency, exists := os.LookupEnv("EMAIL_FREQUENCY")
+	if !exists || emailFrequency == "" {
+		return errors.New("EMAIL_FREQUENCY cannot be empty")
+	}
+	EmailFrequency, err = strconv.Atoi(emailFrequency)
+	if err != nil {
+		return errors.New("unable to parse emailFrequency from string to integer, invalid format")
+	}
+	Logger.Infof("EmailFrequency: %v", emailFrequency)
 
 	return nil
 

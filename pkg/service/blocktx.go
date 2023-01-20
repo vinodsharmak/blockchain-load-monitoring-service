@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"math/big"
 	"strconv"
+	"time"
 
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/email"
@@ -78,10 +79,21 @@ func (s *Service) checkForMaxTxLoad(startBlock int, endBlock int) error {
 		emaiMessage := "Alert !\nThreshold reached for total transactions within a block range! \n\n" +
 			"Maximum threshold per " + config.BlockDifferenceForMaxTxLoad + " blocks is " +
 			config.MaxTxLoad + "\n" + "Number of transactions between " + strconv.Itoa(startBlock) +
-			" and " + strconv.Itoa(endBlock) + " was " + strconv.Itoa(totalTransactions)
-		err := email.SendEmail(emaiMessage)
-		if err != nil {
-			return err
+			" and " + strconv.Itoa(endBlock) + " was " + strconv.Itoa(totalTransactions) +
+			"\n\nImportant : Number of  transaction load alert emails skipped beacuse of frequency of emails is " + strconv.Itoa(s.TxLoadEmails.countOfEmailsSkipped)
+
+		s.log.Infof(emaiMessage)
+
+		if time.Now().Unix()-s.TxLoadEmails.lastEmailsentAt > int64(config.EmailFrequency) {
+			err := email.SendEmail(emaiMessage)
+			if err != nil {
+				return err
+			}
+			s.TxLoadEmails.lastEmailsentAt = time.Now().Unix()
+			s.TxLoadEmails.countOfEmailsSkipped = 0
+		} else {
+			s.log.Infof("Got frequent alerts of tx load ,%v email skipped", s.TxLoadEmails.countOfEmailsSkipped)
+			s.TxLoadEmails.countOfEmailsSkipped = s.TxLoadEmails.countOfEmailsSkipped + 1
 		}
 	} else {
 		if len(higherTxLoadBlocks) > 0 {
@@ -92,10 +104,21 @@ func (s *Service) checkForMaxTxLoad(startBlock int, endBlock int) error {
 			emaiMessage := "Alert ! \n Threshold reached for transactions per block! \n\n" +
 				"Threshold of transactions per block is " + config.MaxTxPerBlock + "\n" +
 				"These blocks has passed the threshold of transactions count per block : \n" +
-				"Given detail is in format : {Block Number: Transactions count} \n" + string(higherTxLoadBlocksBytes)
-			err = email.SendEmail(emaiMessage)
-			if err != nil {
-				return err
+				"Given detail is in format : {Block Number: Transactions count} \n" + string(higherTxLoadBlocksBytes) +
+				"\n\nImportant : Number of transaction load alert emails skipped beacuse of frequency of emails is " + strconv.Itoa(s.TxLoadEmails.countOfEmailsSkipped)
+
+			s.log.Infof(emaiMessage)
+
+			if time.Now().Unix()-s.TxLoadEmails.lastEmailsentAt > int64(config.EmailFrequency) {
+				err := email.SendEmail(emaiMessage)
+				if err != nil {
+					return err
+				}
+				s.TxLoadEmails.lastEmailsentAt = time.Now().Unix()
+				s.TxLoadEmails.countOfEmailsSkipped = 0
+			} else {
+				s.log.Infof("Got frequent alerts of tx load ,%v email skipped", s.TxLoadEmails.countOfEmailsSkipped)
+				s.TxLoadEmails.countOfEmailsSkipped = s.TxLoadEmails.countOfEmailsSkipped + 1
 			}
 		}
 	}

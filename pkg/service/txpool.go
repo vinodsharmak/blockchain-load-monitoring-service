@@ -46,10 +46,21 @@ func (s *Service) txPoolStuck() error {
 
 	s.log.Info("txPoolStuck result:\n", mailContentString)
 	if txPoolContentStuckMail.PendingCount > 0 || txPoolContentStuckMail.QueuedCount > 0 {
-		emailMessage := "Alert !\nTransactions are stuck inside the transaction pool (pending/queued), please find the details below :\n" + mailContentString
-		err = email.SendEmail(emailMessage)
-		if err != nil {
-			return err
+		emailMessage := "Alert !\nTransactions are stuck inside the transaction pool (pending/queued), please find the details below :\n" + mailContentString +
+			"\n\nImportant : Number of transaction pool stuck alert emails skipped beacuse of frequent emails is " + strconv.Itoa(s.TxPoolStuckEmails.countOfEmailsSkipped)
+
+		s.log.Infof(emailMessage)
+
+		if time.Now().Unix()-s.TxPoolStuckEmails.lastEmailsentAt > int64(config.EmailFrequency) {
+			err := email.SendEmail(emailMessage)
+			if err != nil {
+				return err
+			}
+			s.TxPoolStuckEmails.lastEmailsentAt = time.Now().Unix()
+			s.TxPoolStuckEmails.countOfEmailsSkipped = 0
+		} else {
+			s.log.Infof("Got frequent alerts of tx pool stuck transaction,%v email skipped", s.TxPoolStuckEmails.countOfEmailsSkipped)
+			s.TxPoolStuckEmails.countOfEmailsSkipped = s.TxPoolStuckEmails.countOfEmailsSkipped + 1
 		}
 	}
 
