@@ -4,6 +4,7 @@ import (
 	"context"
 	"math/big"
 	"strconv"
+	"time"
 
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/email"
@@ -31,17 +32,26 @@ func (s *Service) checkForMaxGasUsed(startBlock int, endBlock int) error {
 		}
 	}
 	if gasUsedLimitReached {
-		s.log.Infof("Gas used per block from %v to %v is higher than the set threshold of %v.", startBlock, endBlock, maxGasUsedPerBlock)
-
 		emaiMessage := "Alert ! \nThreshold reached for block gas limit utilization! \n\n" +
 			"Gas used from block - " + strconv.Itoa(startBlock) + " to block - " + strconv.Itoa(endBlock) +
-			" has crossed the gas utilization per block threshold of " + config.MaxGasUsedPerBlock
+			" has crossed the gas utilization per block threshold of " + config.MaxGasUsedPerBlock +
+			"\n\nImportant : Number of gas utilization  alert emails skipped beacuse of frequency of emails is " + strconv.Itoa(s.GasUsedEmails.countOfEmailsSkipped)
 
-		err := email.SendEmail(emaiMessage)
-		if err != nil {
-			return err
+		s.log.Infof(emaiMessage)
+
+		if time.Now().Unix()-s.GasUsedEmails.lastEmailsentAt > int64(config.EmailFrequency) {
+			err := email.SendEmail(emaiMessage)
+			if err != nil {
+				return err
+			}
+			s.GasUsedEmails.lastEmailsentAt = time.Now().Unix()
+			s.GasUsedEmails.countOfEmailsSkipped = 0
+		} else {
+			s.log.Infof("Got frequent alerts of gas used,%v email skipped", s.GasUsedEmails.countOfEmailsSkipped)
+			s.GasUsedEmails.countOfEmailsSkipped = s.GasUsedEmails.countOfEmailsSkipped + 1
 		}
 	}
+
 	s.lastCheckedBlockForGasUSed = endBlock
 	return nil
 }

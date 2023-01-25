@@ -2,6 +2,7 @@ package service
 
 import (
 	"strconv"
+	"time"
 
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
 	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/email"
@@ -63,11 +64,22 @@ func (s *Service) checkPendingAndQueuedTxCount() error {
 		if err != nil {
 			return err
 		}
-		emailMessage = emailMessage + txpoolContentString
+		emailMessage = emailMessage + txpoolContentString +
+			"\n\nImportant : Number of Pending and Queued transaction alert emails skipped beacuse of frequency of emails is " +
+			strconv.Itoa(s.PendingAndQueuedTxEmails.countOfEmailsSkipped)
+
 		s.log.Infof(emailMessage)
-		err = email.SendEmail(emailMessage)
-		if err != nil {
-			return err
+
+		if time.Now().Unix()-s.PendingAndQueuedTxEmails.lastEmailsentAt > int64(config.EmailFrequency) {
+			err := email.SendEmail(emailMessage)
+			if err != nil {
+				return err
+			}
+			s.PendingAndQueuedTxEmails.lastEmailsentAt = time.Now().Unix()
+			s.PendingAndQueuedTxEmails.countOfEmailsSkipped = 0
+		} else {
+			s.log.Infof("Got frequent alerts of pendingAndQueued transaction,%v email skipped", s.PendingAndQueuedTxEmails.countOfEmailsSkipped)
+			s.PendingAndQueuedTxEmails.countOfEmailsSkipped = s.PendingAndQueuedTxEmails.countOfEmailsSkipped + 1
 		}
 	}
 	s.log.Info("checkPendingAndQueuedTxCount end")

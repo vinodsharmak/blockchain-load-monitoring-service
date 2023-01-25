@@ -12,6 +12,11 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
+type EmailDetails struct {
+	lastEmailsentAt      int64
+	countOfEmailsSkipped int
+}
+
 type Service struct {
 	ethClient                  *ethclient.Client
 	lastCheckedBlockForTxLoad  int
@@ -19,6 +24,10 @@ type Service struct {
 	log                        *logger.Logger
 	PendingTx                  map[common.Address]map[uint64]model.TxBody
 	QueuedTx                   map[common.Address]map[uint64]model.TxBody
+	TxLoadEmails               EmailDetails
+	GasUsedEmails              EmailDetails
+	PendingAndQueuedTxEmails   EmailDetails
+	TxPoolStuckEmails          EmailDetails
 }
 
 func (s *Service) Configure() error {
