@@ -28,6 +28,7 @@ type Service struct {
 	GasUsedEmails              EmailDetails
 	PendingAndQueuedTxEmails   EmailDetails
 	TxPoolStuckEmails          EmailDetails
+	failures                   int
 }
 
 func (s *Service) Configure() error {
@@ -50,11 +51,18 @@ func (s *Service) BlockchainMonitoringService() error {
 		//check transaction load on blockchain
 		err := s.checkTxLoad()
 		if err != nil {
-			err = email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
-			if err != nil {
-				return err
+			s.failures++
+			s.log.Errorf("checkTxLoad: %v", err)
+			if s.failures > 3 {
+				err = email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
+				if err != nil {
+					s.log.Errorf("error in sendEmail: %v", err)
+					return err
+				}
+				return fmt.Errorf("checkTxLoad: %s", err)
 			}
-			return fmt.Errorf("checkTxLoad: %s", err)
+		} else {
+			s.failures = 0
 		}
 
 		time.Sleep(time.Second * time.Duration(config.TimeIntervalForSubService))
@@ -62,12 +70,18 @@ func (s *Service) BlockchainMonitoringService() error {
 		//check block gaslimit usage
 		err = s.checkGasUsed()
 		if err != nil {
-			err = email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
-			if err != nil {
-				return err
+			s.failures++
+			s.log.Errorf("checkGasUsed: %v", err)
+			if s.failures > 3 {
+				err = email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
+				if err != nil {
+					s.log.Errorf("error in sendEmail: %v", err)
+					return err
+				}
+				return fmt.Errorf("checkGasUsed: %s", err)
 			}
-			return fmt.Errorf("checkGasUsed: %s", err)
-
+		} else {
+			s.failures = 0
 		}
 
 		time.Sleep(time.Second * time.Duration(config.TimeIntervalForSubService))
@@ -75,11 +89,18 @@ func (s *Service) BlockchainMonitoringService() error {
 		//check pending and queued txpool count
 		err = s.checkPendingAndQueuedTxCount()
 		if err != nil {
-			err = email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
-			if err != nil {
-				return err
+			s.failures++
+			s.log.Errorf("checkPendingAndQueuedTxCount: %v", err)
+			if s.failures > 3 {
+				err = email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
+				if err != nil {
+					s.log.Errorf("error in sendEmail: %v", err)
+					return err
+				}
+				return fmt.Errorf("checkPendingAndQueuedTxCount: %s", err)
 			}
-			return fmt.Errorf("checkPendingAndQueuedTxCount: %s", err)
+		} else {
+			s.failures = 0
 		}
 
 		time.Sleep(time.Second * time.Duration(config.TimeIntervalForSubService))
@@ -87,11 +108,18 @@ func (s *Service) BlockchainMonitoringService() error {
 		//check if tx stuck in txpool in pending and queued
 		err = s.txPoolStuck()
 		if err != nil {
-			err = email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
-			if err != nil {
-				return err
+			s.failures++
+			s.log.Errorf("txPoolStuck: %v", err)
+			if s.failures > 3 {
+				err = email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
+				if err != nil {
+					s.log.Errorf("error in sendEmail: %v", err)
+					return err
+				}
+				return fmt.Errorf("txPoolStuck: %s", err)
 			}
-			return fmt.Errorf("txPoolStuck: %s", err)
+		} else {
+			s.failures = 0
 		}
 
 		time.Sleep(time.Second * time.Duration(config.TimeIntervalForSubService))
