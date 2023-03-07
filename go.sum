@@ -3,8 +3,6 @@ github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6/go.mod h1:3eOhrU
 github.com/VictoriaMetrics/fastcache v1.6.0 h1:C/3Oi3EiBCqufydp1neRZkqcwmEiuRT9c3fqvvgKm5o=
 github.com/antigloss/go v1.18.1 h1:CF3zABYTOF/V2Pm/drW/YDCPUfjQn+qGiyQIlbCyv9c=
 github.com/antigloss/go v1.18.1/go.mod h1:YnfA+elUkm2MnsnhPfw6318MGDh5lw8mGJGe6xqCkE8=
-github.com/aws/aws-sdk-go v1.44.173 h1:8kXIxvQnBpGhmR3Eof6SnCKgR0q5/L/3Qbv9vAC5wic=
-github.com/aws/aws-sdk-go v1.44.173/go.mod h1:aVsgQcEevwlmQ7qHE9I3h+dtQgpqhFB+i8Phjh7fkwI=
 github.com/aws/aws-sdk-go v1.44.180 h1:VLZuAHI9fa/3WME5JjpVjcPCNfpGHVMiHx8sLHWhMgI=
 github.com/aws/aws-sdk-go v1.44.180/go.mod h1:aVsgQcEevwlmQ7qHE9I3h+dtQgpqhFB+i8Phjh7fkwI=
 github.com/btcsuite/btcd/btcec/v2 v2.2.0 h1:fzn1qaOt32TuLjFlkzYSsBC35Q3KUjT1SwPxiMSCF5k=
