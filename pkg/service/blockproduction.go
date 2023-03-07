@@ -1,0 +1,56 @@
+package service
+
+import (
+	"context"
+	"math/big"
+	"strconv"
+	"time"
+
+	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/config"
+	"bitbucket.org/gath3rio/blockchain-load-monitoring-service.git/pkg/email"
+)
+
+// check if blocks is getting mined
+func (s *Service) checkBlockProduction() error {
+	s.log.Info("checkBlockProduction start")
+
+	currentBlock, err := s.ethClient.BlockNumber(context.Background())
+	if err != nil {
+		return err
+	}
+	s.log.Info("current block number: ", currentBlock)
+
+	block, err := s.ethClient.BlockByNumber(context.Background(), new(big.Int).SetInt64(int64(currentBlock)))
+	if err != nil {
+		return err
+	}
+
+	if s.lastBlock == 0 {
+		s.lastBlock = int(currentBlock)
+		s.lastBlockMinedAt = int(block.Header().Time)
+	} else if int(currentBlock) > s.lastBlock {
+		s.lastBlock = int(currentBlock)
+		s.lastBlockMinedAt = int(block.Header().Time)
+		return nil
+	} else {
+		emailMessage := "Alert ! \n Blocks are not getting mined ! \n\n" +
+			"Last block was " + string(s.lastBlock) + "\n" +
+			"Last block was mined at : " + time.Unix(int64(s.lastBlockMinedAt), 0).String() + "\n" +
+			"\n\nImportant : Number of No block production emails skipped beacuse of frequent emails is " + strconv.Itoa(s.blockProductionEmails.countOfEmailsSkipped)
+		s.log.Infof(emailMessage)
+
+		if time.Now().Unix()-s.blockProductionEmails.lastEmailsentAt > int64(config.EmailFrequency) {
+			err := email.SendEmail(emailMessage)
+			if err != nil {
+				return err
+			}
+			s.blockProductionEmails.lastEmailsentAt = time.Now().Unix()
+			s.blockProductionEmails.countOfEmailsSkipped = 0
+		} else {
+			s.log.Infof("Got frequent alerts of no block production,%v email skipped", s.blockProductionEmails.countOfEmailsSkipped)
+			s.blockProductionEmails.countOfEmailsSkipped = s.blockProductionEmails.countOfEmailsSkipped + 1
+		}
+	}
+	s.log.Info("checkBlockProduction end")
+	return nil
+}
