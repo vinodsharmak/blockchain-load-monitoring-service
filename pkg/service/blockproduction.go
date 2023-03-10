@@ -13,7 +13,11 @@ import (
 // check if blocks is getting mined
 func (s *Service) checkBlockProduction() error {
 	s.log.Info("checkBlockProduction start")
-	loc, _ := time.LoadLocation("Asia/Kolkata")
+
+	loc, err := time.LoadLocation("Asia/Kolkata")
+	if err != nil {
+		return err
+	}
 
 	currentBlock, err := s.ethClient.BlockNumber(context.Background())
 	if err != nil {
