@@ -34,10 +34,10 @@ func (s *Service) checkBlockProduction() error {
 		return nil
 	} else {
 		if time.Now().Unix()-int64(s.lastBlockMinedAt) > int64(config.BlockProductionTime) {
-			emailMessage := "Alert ! \n Blocks are not getting mined ! \n\n" +
+			emailMessage := "Alert ! \n Blocks time exceeds " + strconv.Itoa(config.BlockProductionTime) + " secounds ! \n\n" +
 				"Last block was " + string(s.lastBlock) + "\n" +
 				"Last block was mined at : " + time.Unix(int64(s.lastBlockMinedAt), 0).String() + "\n" +
-				"\n\nImportant : Number of No block production emails skipped beacuse of frequent emails is " + strconv.Itoa(s.blockProductionEmails.countOfEmailsSkipped)
+				"\n\nImportant : Number of block time exceeding emails skipped because of frequent emails is " + strconv.Itoa(s.blockProductionEmails.countOfEmailsSkipped)
 			s.log.Infof(emailMessage)
 			if time.Now().Unix()-s.blockProductionEmails.lastEmailsentAt > int64(config.EmailFrequency) {
 				err := email.SendEmail(emailMessage)
@@ -47,11 +47,11 @@ func (s *Service) checkBlockProduction() error {
 				s.blockProductionEmails.lastEmailsentAt = time.Now().Unix()
 				s.blockProductionEmails.countOfEmailsSkipped = 0
 			} else {
-				s.log.Infof("Got frequent alerts of no block production,%v email skipped", s.blockProductionEmails.countOfEmailsSkipped)
+				s.log.Infof("Got frequent alerts of block time,%v email skipped", s.blockProductionEmails.countOfEmailsSkipped)
 				s.blockProductionEmails.countOfEmailsSkipped = s.blockProductionEmails.countOfEmailsSkipped + 1
 			}
 		} else {
-			s.log.Infof("Waiting for %v seconds for nect block", config.BlockProductionTime)
+			s.log.Infof("Waiting for %v seconds for next block", config.BlockProductionTime)
 		}
 	}
 	s.log.Info("checkBlockProduction end")
