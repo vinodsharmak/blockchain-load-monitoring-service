@@ -33,22 +33,25 @@ func (s *Service) checkBlockProduction() error {
 		s.lastBlockMinedAt = int(block.Header().Time)
 		return nil
 	} else {
-		emailMessage := "Alert ! \n Blocks are not getting mined ! \n\n" +
-			"Last block was " + string(s.lastBlock) + "\n" +
-			"Last block was mined at : " + time.Unix(int64(s.lastBlockMinedAt), 0).String() + "\n" +
-			"\n\nImportant : Number of No block production emails skipped beacuse of frequent emails is " + strconv.Itoa(s.blockProductionEmails.countOfEmailsSkipped)
-		s.log.Infof(emailMessage)
-
-		if time.Now().Unix()-s.blockProductionEmails.lastEmailsentAt > int64(config.EmailFrequency) {
-			err := email.SendEmail(emailMessage)
-			if err != nil {
-				return err
+		if time.Now().Unix()-int64(s.lastBlockMinedAt) > int64(config.BlockProductionTime) {
+			emailMessage := "Alert ! \n Blocks are not getting mined ! \n\n" +
+				"Last block was " + string(s.lastBlock) + "\n" +
+				"Last block was mined at : " + time.Unix(int64(s.lastBlockMinedAt), 0).String() + "\n" +
+				"\n\nImportant : Number of No block production emails skipped beacuse of frequent emails is " + strconv.Itoa(s.blockProductionEmails.countOfEmailsSkipped)
+			s.log.Infof(emailMessage)
+			if time.Now().Unix()-s.blockProductionEmails.lastEmailsentAt > int64(config.EmailFrequency) {
+				err := email.SendEmail(emailMessage)
+				if err != nil {
+					return err
+				}
+				s.blockProductionEmails.lastEmailsentAt = time.Now().Unix()
+				s.blockProductionEmails.countOfEmailsSkipped = 0
+			} else {
+				s.log.Infof("Got frequent alerts of no block production,%v email skipped", s.blockProductionEmails.countOfEmailsSkipped)
+				s.blockProductionEmails.countOfEmailsSkipped = s.blockProductionEmails.countOfEmailsSkipped + 1
 			}
-			s.blockProductionEmails.lastEmailsentAt = time.Now().Unix()
-			s.blockProductionEmails.countOfEmailsSkipped = 0
 		} else {
-			s.log.Infof("Got frequent alerts of no block production,%v email skipped", s.blockProductionEmails.countOfEmailsSkipped)
-			s.blockProductionEmails.countOfEmailsSkipped = s.blockProductionEmails.countOfEmailsSkipped + 1
+			s.log.Infof("Waiting for %v seconds for nect block", config.BlockProductionTime)
 		}
 	}
 	s.log.Info("checkBlockProduction end")
