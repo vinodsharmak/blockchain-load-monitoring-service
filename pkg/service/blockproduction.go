@@ -39,7 +39,7 @@ func (s *Service) checkBlockProduction() error {
 		return nil
 	} else {
 		if time.Now().Unix()-int64(s.lastBlockMinedAt) > int64(config.BlockProductionTime) {
-			emailMessage := "Alert ! \n Block time exceeded " + strconv.Itoa(config.BlockProductionTime) + " secounds ! \n\n" +
+			emailMessage := "Alert ! Block time exceeded " + strconv.Itoa(config.BlockProductionTime) + " seconds !\n\n" +
 				"Last block was " + strconv.Itoa(s.lastBlock) + "\n" +
 				"Last block was mined at : " + time.Unix(int64(s.lastBlockMinedAt), 0).In(loc).String() + "\n" +
 				"\n\nImportant : Number of block time exceeding emails skipped because of frequent emails is " + strconv.Itoa(s.blockProductionEmails.countOfEmailsSkipped)
