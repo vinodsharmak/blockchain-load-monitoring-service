@@ -57,10 +57,10 @@ func (s *Service) BlockchainMonitoringService() error {
 			s.failures++
 			s.log.Errorf("checkBlockProduction: %v", err)
 			if s.failures > 3 {
-				err = email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
-				if err != nil {
-					s.log.Errorf("error in sendEmail: %v", err)
-					return err
+				err1 := email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
+				if err1 != nil {
+					s.log.Errorf("error in sendEmail: %v", err1)
+					return err1
 				}
 				return fmt.Errorf("checkTxLoad: %s", err)
 			}
@@ -76,10 +76,10 @@ func (s *Service) BlockchainMonitoringService() error {
 			s.failures++
 			s.log.Errorf("checkTxLoad: %v", err)
 			if s.failures > 3 {
-				err = email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
-				if err != nil {
-					s.log.Errorf("error in sendEmail: %v", err)
-					return err
+				err1 := email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
+				if err1 != nil {
+					s.log.Errorf("error in sendEmail: %v", err1)
+					return err1
 				}
 				return fmt.Errorf("checkTxLoad: %s", err)
 			}
@@ -95,10 +95,10 @@ func (s *Service) BlockchainMonitoringService() error {
 			s.failures++
 			s.log.Errorf("checkGasUsed: %v", err)
 			if s.failures > 3 {
-				err = email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
-				if err != nil {
-					s.log.Errorf("error in sendEmail: %v", err)
-					return err
+				err1 := email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
+				if err1 != nil {
+					s.log.Errorf("error in sendEmail: %v", err1)
+					return err1
 				}
 				return fmt.Errorf("checkGasUsed: %s", err)
 			}
@@ -114,10 +114,10 @@ func (s *Service) BlockchainMonitoringService() error {
 			s.failures++
 			s.log.Errorf("checkPendingAndQueuedTxCount: %v", err)
 			if s.failures > 3 {
-				err = email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
-				if err != nil {
-					s.log.Errorf("error in sendEmail: %v", err)
-					return err
+				err1 := email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
+				if err1 != nil {
+					s.log.Errorf("error in sendEmail: %v", err1)
+					return err1
 				}
 				return fmt.Errorf("checkPendingAndQueuedTxCount: %s", err)
 			}
@@ -133,10 +133,10 @@ func (s *Service) BlockchainMonitoringService() error {
 			s.failures++
 			s.log.Errorf("txPoolStuck: %v", err)
 			if s.failures > 3 {
-				err = email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
-				if err != nil {
-					s.log.Errorf("error in sendEmail: %v", err)
-					return err
+				err1 := email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
+				if err1 != nil {
+					s.log.Errorf("error in sendEmail: %v", err1)
+					return err1
 				}
 				return fmt.Errorf("txPoolStuck: %s", err)
 			}
