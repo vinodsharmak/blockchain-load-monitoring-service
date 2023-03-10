@@ -25,6 +25,7 @@ var (
 	TxpoolTimeLimit              int
 	Network                      string
 	EmailFrequency               int
+	BlockProductionTime          int
 )
 
 // ReadConfig reads config file into the Config struct and returns it
@@ -156,6 +157,16 @@ func ReadConfig() error {
 		return errors.New("unable to parse emailFrequency from string to integer, invalid format")
 	}
 	Logger.Infof("EmailFrequency: %v", emailFrequency)
+
+	blockProductionTime, exists := os.LookupEnv("BLOCK_PRODUCTION_TIME")
+	if !exists || blockProductionTime == "" {
+		return errors.New("BLOCK_PRODUCTION_TIME cannot be empty")
+	}
+	BlockProductionTime, err = strconv.Atoi(blockProductionTime)
+	if err != nil {
+		return errors.New("unable to parse blockProductionTime from string to integer, invalid format")
+	}
+	Logger.Infof("BlockProductionTime: %v", blockProductionTime)
 
 	return nil
 
