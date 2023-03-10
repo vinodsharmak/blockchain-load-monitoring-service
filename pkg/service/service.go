@@ -28,6 +28,9 @@ type Service struct {
 	GasUsedEmails              EmailDetails
 	PendingAndQueuedTxEmails   EmailDetails
 	TxPoolStuckEmails          EmailDetails
+	blockProductionEmails      EmailDetails
+	lastBlock                  int
+	lastBlockMinedAt           int
 	failures                   int
 }
 
@@ -48,8 +51,20 @@ func (s *Service) BlockchainMonitoringService() error {
 
 	for {
 		s.log.Info("-----------------------------------------------CYCLE-START-----------------------------------------------")
+		//check block poduction
+		err := s.checkBlockProduction()
+		if err != nil {
+			err = email.SendEmail("SERVICE DOWN!!\nError encountered in service: " + err.Error())
+			if err != nil {
+				return err
+			}
+			return fmt.Errorf("checkBlockProduction: %s", err)
+		}
+
+		time.Sleep(time.Second * time.Duration(config.TimeIntervalForSubService))
+
 		//check transaction load on blockchain
-		err := s.checkTxLoad()
+		err = s.checkTxLoad()
 		if err != nil {
 			s.failures++
 			s.log.Errorf("checkTxLoad: %v", err)
